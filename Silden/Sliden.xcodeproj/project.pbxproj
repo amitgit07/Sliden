@@ -59,6 +59,10 @@
 		203DC4CD179634B400E0F760 /* WorkSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = 203DC4CC179634B400E0F760 /* WorkSpace.m */; };
 		203DC4D11796393D00E0F760 /* SConfirmationVc.m in Sources */ = {isa = PBXBuildFile; fileRef = 203DC4CF1796393D00E0F760 /* SConfirmationVc.m */; };
 		203DC4D21796393D00E0F760 /* SConfirmationVc.xib in Resources */ = {isa = PBXBuildFile; fileRef = 203DC4D01796393D00E0F760 /* SConfirmationVc.xib */; };
+		203DC4D6179651E700E0F760 /* SPreviewVc.m in Sources */ = {isa = PBXBuildFile; fileRef = 203DC4D4179651E600E0F760 /* SPreviewVc.m */; };
+		203DC4D7179651E700E0F760 /* SPreviewVc.xib in Resources */ = {isa = PBXBuildFile; fileRef = 203DC4D5179651E700E0F760 /* SPreviewVc.xib */; };
+		203DC4DA1796527E00E0F760 /* setting_button.png in Resources */ = {isa = PBXBuildFile; fileRef = 203DC4D81796527E00E0F760 /* setting_button.png */; };
+		203DC4DB1796527E00E0F760 /* setting_button@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 203DC4D91796527E00E0F760 /* setting_button@2x.png */; };
 		20403F81173B6BE9009D02B0 /* SInviteFriendsVc.m in Sources */ = {isa = PBXBuildFile; fileRef = 20403F7F173B6BE9009D02B0 /* SInviteFriendsVc.m */; };
 		20403F82173B6BE9009D02B0 /* SInviteFriendsVc.xib in Resources */ = {isa = PBXBuildFile; fileRef = 20403F80173B6BE9009D02B0 /* SInviteFriendsVc.xib */; };
 		2046BFA7173A782C0015A05E /* 1.png in Resources */ = {isa = PBXBuildFile; fileRef = 2046BFA0173A782C0015A05E /* 1.png */; };
@@ -260,6 +264,11 @@
 		203DC4CE1796393D00E0F760 /* SConfirmationVc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SConfirmationVc.h; sourceTree = "<group>"; };
 		203DC4CF1796393D00E0F760 /* SConfirmationVc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SConfirmationVc.m; sourceTree = "<group>"; };
 		203DC4D01796393D00E0F760 /* SConfirmationVc.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SConfirmationVc.xib; sourceTree = "<group>"; };
+		203DC4D3179651E600E0F760 /* SPreviewVc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPreviewVc.h; sourceTree = "<group>"; };
+		203DC4D4179651E600E0F760 /* SPreviewVc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SPreviewVc.m; sourceTree = "<group>"; };
+		203DC4D5179651E700E0F760 /* SPreviewVc.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SPreviewVc.xib; sourceTree = "<group>"; };
+		203DC4D81796527E00E0F760 /* setting_button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = setting_button.png; sourceTree = "<group>"; };
+		203DC4D91796527E00E0F760 /* setting_button@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "setting_button@2x.png"; sourceTree = "<group>"; };
 		20403F7E173B6BE9009D02B0 /* SInviteFriendsVc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SInviteFriendsVc.h; sourceTree = "<group>"; };
 		20403F7F173B6BE9009D02B0 /* SInviteFriendsVc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SInviteFriendsVc.m; sourceTree = "<group>"; };
 		20403F80173B6BE9009D02B0 /* SInviteFriendsVc.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SInviteFriendsVc.xib; sourceTree = "<group>"; };
@@ -604,6 +613,9 @@
 				203DC4CE1796393D00E0F760 /* SConfirmationVc.h */,
 				203DC4CF1796393D00E0F760 /* SConfirmationVc.m */,
 				203DC4D01796393D00E0F760 /* SConfirmationVc.xib */,
+				203DC4D3179651E600E0F760 /* SPreviewVc.h */,
+				203DC4D4179651E600E0F760 /* SPreviewVc.m */,
+				203DC4D5179651E700E0F760 /* SPreviewVc.xib */,
 			);
 			path = Show;
 			sourceTree = "<group>";
@@ -874,6 +886,8 @@
 		20D756CE1774BF5C00EDA851 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				203DC4D81796527E00E0F760 /* setting_button.png */,
+				203DC4D91796527E00E0F760 /* setting_button@2x.png */,
 				2072019D1781FB6F0080D1E1 /* select_a_tune_button.png */,
 				2072019E1781FB6F0080D1E1 /* select_a_tune_button@2x.png */,
 				207201991781F9D90080D1E1 /* description_box.png */,
@@ -1099,6 +1113,9 @@
 				2072019F1781FB6F0080D1E1 /* select_a_tune_button.png in Resources */,
 				207201A01781FB6F0080D1E1 /* select_a_tune_button@2x.png in Resources */,
 				203DC4D21796393D00E0F760 /* SConfirmationVc.xib in Resources */,
+				203DC4D7179651E700E0F760 /* SPreviewVc.xib in Resources */,
+				203DC4DA1796527E00E0F760 /* setting_button.png in Resources */,
+				203DC4DB1796527E00E0F760 /* setting_button@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1147,6 +1164,7 @@
 				203DC4CA179634B300E0F760 /* WorkingImage.m in Sources */,
 				203DC4CD179634B400E0F760 /* WorkSpace.m in Sources */,
 				203DC4D11796393D00E0F760 /* SConfirmationVc.m in Sources */,
+				203DC4D6179651E700E0F760 /* SPreviewVc.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
