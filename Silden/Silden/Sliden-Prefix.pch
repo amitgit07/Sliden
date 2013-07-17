@@ -1,0 +1,44 @@
+//
+// Prefix header for all source files of the 'Silden' target in the 'Silden' project
+//
+
+#import <Availability.h>
+
+#ifndef __IPHONE_4_0
+#warning "This project uses features only available in iOS SDK 4.0 and later."
+#endif
+
+#ifdef __OBJC__
+    #import <UIKit/UIKit.h>
+    #import <Foundation/Foundation.h>
+    #import <QuartzCore/QuartzCore.h>
+    #import <CoreGraphics/CoreGraphics.h>
+    #import <FacebookSDK/FacebookSDK.h>
+    #import "SAppDelegate.h"
+    #import "SharedUtility.h"
+    #import "UIView+ResignResponder.h"
+    #import "Constants.h"
+    #import "SViewController.h"
+    #import "SGrayViewController.h"
+    #import "SUILable.h"
+    #import <CoreData/CoreData.h>
+#endif
+
+#define  RGBA(r , g, b, a) [UIColor colorWithRed:r/255.0f green:g/255.0f blue:b/255.0f alpha:a]
+#define IS_PHONE5 ([UIScreen mainScreen].bounds.size.height == 568.0f && [UIScreen mainScreen].scale == 2.f && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+
+#define APP_DELEGATE (SAppDelegate*)[[UIApplication sharedApplication] delegate]
+#define DOC_DIR [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]
+#define DLog(fmt, ...) NSLog((@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)\
+([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
+
+#define sRelease(object)                \
+{                                       \
+    [object release];                   \
+    object = nil;                       \
+}
+#define cRelease(object)                \
+{                                       \
+    if (object) sRelease(object);       \
+}
