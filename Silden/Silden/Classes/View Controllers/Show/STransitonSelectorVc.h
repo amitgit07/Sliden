@@ -9,8 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "iCarousel.h"
 #import "WorkSpace.h"
+#import "STransitionSampleVIew.h"
 
-@interface STransitonSelectorVc : SGrayViewController <iCarouselDataSource,iCarouselDelegate>
+@interface STransitonSelectorVc : SGrayViewController <iCarouselDataSource,iCarouselDelegate, STransitionSampleVIewDelegate>
 
 @property (retain, nonatomic) IBOutlet iCarousel *icarouselView;
 @property (nonatomic, strong) WorkSpace* workSpace;

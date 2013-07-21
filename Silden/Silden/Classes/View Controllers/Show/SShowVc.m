@@ -41,10 +41,10 @@
 - (IBAction)createShowButtonTap:(UIButton *)sender {
     STransitonSelectorVc* newObj = [[[STransitonSelectorVc alloc] initWithNibName:@"STransitonSelectorVc" bundle:nil] autorelease];
     UINavigationController* nvc = [[[UINavigationController alloc] initWithRootViewController:newObj] autorelease];
-    [APP_DELEGATE setNavigationBarBackground:NO];
-    [[APP_DELEGATE window] setRootViewController:nvc];
-    
-    
+    [UIView transitionFromView:self.view toView:newObj.view duration:0.35f options:UIViewAnimationOptionTransitionFlipFromLeft completion:^(BOOL finished) {
+        [APP_DELEGATE setNavigationBarBackground:NO];
+        [[APP_DELEGATE window] setRootViewController:nvc];
+    }];
 }
 
 - (IBAction)loadShowButtonTap:(UIButton *)sender {

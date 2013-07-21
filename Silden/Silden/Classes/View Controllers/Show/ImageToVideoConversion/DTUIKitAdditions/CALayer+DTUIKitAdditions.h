@@ -55,5 +55,6 @@ typedef NS_ENUM(NSInteger, DTCALayerFlipAnimationDirection) {
 
 /************************************************************************************************************/
 
+- (void)shouldRepeat;
 
 @end

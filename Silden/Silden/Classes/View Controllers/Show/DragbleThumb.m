@@ -13,6 +13,8 @@
 @synthesize isDraggingEnabled=_isDraggingEnabled;
 @synthesize delegate=_delegate;
 @synthesize thumbIndex=_thumbIndex;
+@synthesize workingImage=_workingImage;
+
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
@@ -22,6 +24,10 @@
         [_imageThumb setClipsToBounds:YES];
         [self addSubview:_imageThumb];
         backupFrame = frame;
+        
+        UITapGestureRecognizer* tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapOnThumbToEdit)];
+        [tap setNumberOfTapsRequired:1];
+        [self addGestureRecognizer:tap];
     }
     return self;
 }
@@ -73,6 +79,11 @@
 //            self.frame = backupFrame;
 //        }];
 //    }
+}
+- (void)didTapOnThumbToEdit {
+    if (self.delegate && [_delegate respondsToSelector:@selector(didTapToEditDragbleThumb:)]) {
+        [_delegate didTapToEditDragbleThumb:self];
+    }
 }
 #pragma mark - 
 - (void)setIsDraggingEnabled:(BOOL)enabled {

@@ -130,9 +130,11 @@
     _workSpace = [self.fetchedResultsController objectAtIndexPath:indexPath];
     STransitonSelectorVc* newObj = [[[STransitonSelectorVc alloc] initWithNibName:@"STransitonSelectorVc" bundle:nil] autorelease];
     newObj.workSpace = _workSpace;
-    UINavigationController* nvc = [[[UINavigationController alloc] initWithRootViewController:newObj] autorelease];
-    [APP_DELEGATE setNavigationBarBackground:NO];
-    [[APP_DELEGATE window] setRootViewController:nvc];
+    UINavigationController* nvc = [[UINavigationController alloc] initWithRootViewController:newObj];
+    [UIView transitionFromView:self.view toView:newObj.view duration:0.35f options:UIViewAnimationOptionTransitionFlipFromLeft completion:^(BOOL finished) {
+        [APP_DELEGATE setNavigationBarBackground:NO];
+        [[APP_DELEGATE window] setRootViewController:[nvc autorelease]];
+    }];
 }
 - (NSFetchedResultsController *)fetchedResultsController
 {

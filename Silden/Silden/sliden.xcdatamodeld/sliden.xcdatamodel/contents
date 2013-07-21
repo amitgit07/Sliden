@@ -11,11 +11,12 @@
         <attribute name="dateModified" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="trackUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="transitions" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="videoDescription" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="images" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="WorkingImage" inverseName="inWorkSpace" inverseEntity="WorkingImage" syncable="YES"/>
     </entity>
     <elements>
         <element name="WorkingImage" positionX="-126" positionY="3" width="128" height="103"/>
-        <element name="WorkSpace" positionX="61" positionY="63" width="128" height="133"/>
+        <element name="WorkSpace" positionX="61" positionY="63" width="128" height="150"/>
     </elements>
 </model>

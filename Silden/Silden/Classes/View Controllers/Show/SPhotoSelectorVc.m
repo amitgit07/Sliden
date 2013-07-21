@@ -12,6 +12,10 @@
 #import "ELCAssetTablePicker.h"
 #import "SInfoEditorVc.h"
 
+#import <QuartzCore/QuartzCore.h>
+#import "AFPhotoEditorController.h"
+#import "AFPhotoEditorCustomization.h"
+
 
 @interface SPhotoSelectorVc ()
 @end
@@ -71,6 +75,7 @@
 	for(WorkingImage *image in allImages) {
         CGRect frame = CGRectMake(currentX, currentY, 70, 70);
         DragbleThumb* view = [[DragbleThumb alloc] initWithFrame:frame];
+        view.workingImage = image;
         [tileFrame addObject:[NSValue valueWithCGRect:frame]];
         [view.imageThumb setImage:[UIImage imageWithContentsOfFile:image.imageUrl]];
         [_scrollView addSubview:view];
@@ -124,6 +129,7 @@
 }
 
 - (IBAction)homeButtonTap:(UIButton *)sender {
+    [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE tabBarController]];
 }
 
 
@@ -324,31 +330,70 @@
         [thumb stopWiggling];
     }
 }
+- (void)didTapToEditDragbleThumb:(DragbleThumb*)thumb {
+    _beingEditedImage = thumb;
+    UIImage* image = [UIImage imageWithContentsOfFile:thumb.workingImage.imageUrl];
+    [self launchPhotoEditorWithImage:image highResolutionImage:nil];
+}
 
-//- (void)dragbleThumb:(DragbleThumb*)movingThumb didStartMovingFromLocation:(CGRect)start {
-//    for (DragbleThumb* thumb in allThumbs) {
-//        if (movingThumb!=thumb)
-//            [thumb setIsDraggingEnabled:NO];
-//    }
-//}
-//- (void)dragbleThumb:(DragbleThumb*)movingThumb didExitFromLocation:(CGRect)start {
-//    int index = -1;
-//    CGSize maxIntersect=CGSizeZero;
-//    for (DragbleThumb* thumb in allThumbs) {
-//        if (thumb==movingThumb) continue;
-//        CGRect intersect = CGRectIntersection(thumb.frame, movingThumb.frame);
-//        if (intersect.size.width>(thumb.frame.size.width*0.4f) && intersect.size.height>(thumb.frame.size.height*0.4f)) {
-//            if (maxIntersect.height<intersect.size.height || maxIntersect.width<intersect.size.width) {
-//                index=thumb.thumbIndex;
-//                maxIntersect = intersect.size;
-//            }
-//        }
-//    }
-//    [self repositionTumbAtIndex:movingThumb.thumbIndex toIndex:index];
-//}
-//- (void)didEnddragbleThumb:(DragbleThumb*)thumb {
-//    for (DragbleThumb* thumb in allThumbs) {
-//        [thumb setIsDraggingEnabled:YES];
-//    }
-//}
+
+- (void) launchPhotoEditorWithImage:(UIImage *)editingResImage highResolutionImage:(UIImage *)highResImage
+{
+    // Initialize the photo editor and set its delegate
+    AFPhotoEditorController * photoEditor = [[AFPhotoEditorController alloc] initWithImage:editingResImage];
+    [photoEditor setDelegate:self];
+    
+    // Customize the editor's apperance. The customization options really only need to be set once in this case since they are never changing, so we used dispatch once here.
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [self setPhotoEditorCustomizationOptions];
+    });
+    [self presentViewController:photoEditor animated:YES completion:nil];
+}
+#pragma Photo Editor Delegate Methods
+
+// This is called when the user taps "Done" in the photo editor.
+- (void) photoEditor:(AFPhotoEditorController *)editor finishedWithImage:(UIImage *)image
+{
+    [_beingEditedImage.imageThumb setImage:image];
+    NSData * binaryImageData = UIImagePNGRepresentation(image);
+    [binaryImageData writeToFile:_beingEditedImage.workingImage.imageUrl atomically:YES];
+
+    
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void) photoEditorCanceled:(AFPhotoEditorController *)editor
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - Photo Editor Customization
+
+- (void) setPhotoEditorCustomizationOptions
+{
+    // Set Accent Color
+    [AFPhotoEditorCustomization setOptionValue:[UIColor colorWithRed:(159.0f/255.0f) green:(105.0f/255.0f) blue:(201.0f/255.0f) alpha:1.0f] forKey:@"editor.accentColor"];
+    
+    // Set Tool Order
+    NSArray * toolOrder = @[kAFEffects, kAFFrames, kAFStickers, kAFEnhance, kAFOrientation, kAFCrop, kAFBrightness, kAFContrast, kAFSaturation, kAFSharpness, kAFDraw, kAFText,
+                            kAFRedeye, kAFWhiten, kAFBlemish, kAFMeme];
+    [AFPhotoEditorCustomization setOptionValue:toolOrder forKey:@"editor.toolOrder"];
+    
+    // Set Custom Crop Sizes
+    [AFPhotoEditorCustomization setOptionValue:@NO forKey:@"editor.tool.crop.enableOriginal"];
+    [AFPhotoEditorCustomization setOptionValue:@YES forKey:@"editor.tool.crop.enableCustom"];
+    NSDictionary * fourBySix = @{kAFCropPresetHeight : @(4.0f), kAFCropPresetWidth : @(6.0f)};
+    NSDictionary * fiveBySeven = @{kAFCropPresetHeight : @(5.0f), kAFCropPresetWidth : @(7.0f)};
+    NSDictionary * square = @{kAFCropPresetName: @"Square", kAFCropPresetHeight : @(1.0f), kAFCropPresetWidth : @(1.0f)};
+    [AFPhotoEditorCustomization setOptionValue:@[square, fourBySix, fiveBySeven] forKey:@"editor.tool.crop.presets"];
+    
+    // Set Supported Orientations
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        NSArray * supportedOrientations = @[@(UIInterfaceOrientationPortrait), @(UIInterfaceOrientationPortraitUpsideDown), @(UIInterfaceOrientationLandscapeLeft), @(UIInterfaceOrientationLandscapeRight)];
+        [AFPhotoEditorCustomization setOptionValue:supportedOrientations forKey:@"editor.supportedOrientations"];
+    }
+}
+
+
 @end

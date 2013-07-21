@@ -197,6 +197,7 @@
 - (void)showActivity:(BOOL)show {
     [_screenLock setHidden:!show];
     if (show) {
+        [self.window bringSubviewToFront:_screenLock];
         [_imgView startAnimating];
     }
     else {

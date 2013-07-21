@@ -7,6 +7,7 @@
 //
 
 #import "SInfoEditorVc.h"
+#import "SPreviewVc.h"
 
 @interface SInfoEditorVc ()
 
@@ -100,6 +101,7 @@
     [super dealloc];
 }
 - (IBAction)selectTuneButtonTap:(UIButton *)sender {
+    [SCI showDevelopmentAlert];
 }
 
 - (IBAction)keepSlidenButtonTap:(id)sender {
@@ -107,6 +109,9 @@
         _workSpace.title = _titleTextField.text;
         _workSpace.videoDescription = _descriptionTextView.text;
         [APP_DELEGATE saveContext];
+        SPreviewVc* newObj = [[SPreviewVc alloc] initWithNibName:@"SPreviewVc" bundle:nil];
+        newObj.workSpace = self.workSpace;
+        [self.navigationController pushViewController:newObj animated:YES];
     }
 }
 
@@ -116,5 +121,6 @@
         _workSpace.videoDescription = _descriptionTextView.text;
         [APP_DELEGATE saveContext];
     }
+    [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE tabBarController]];
 }
 @end

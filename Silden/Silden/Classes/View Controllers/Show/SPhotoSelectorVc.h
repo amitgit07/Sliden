@@ -11,13 +11,15 @@
 #import "WorkSpace.h"
 #import "WorkingImage.h"
 #import "DragbleThumb.h"
+#import "AFPhotoEditorController.h"
 
-@interface SPhotoSelectorVc : SGrayViewController <ELCImagePickerControllerDelegate, DragbleThumbDelegate> {
+@interface SPhotoSelectorVc : SGrayViewController <ELCImagePickerControllerDelegate, DragbleThumbDelegate, AFPhotoEditorControllerDelegate> {
     DragbleThumb* heldTile;
     int      heldFrameIndex;
     CGPoint  heldStartPosition;
     CGPoint  touchStartLocation;
     NSMutableArray* tileFrame;
+    DragbleThumb* _beingEditedImage;
 }
 @property (retain, nonatomic) IBOutlet UIScrollView *scrollView;
 @property (retain, nonatomic) IBOutlet UIButton *addPhotoButton;

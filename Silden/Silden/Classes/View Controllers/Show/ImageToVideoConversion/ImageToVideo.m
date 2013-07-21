@@ -29,10 +29,13 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
 #define ANIMATION_TIME 1.0f
 #define BufferTime 0.5
 
-#define TEMP_PATH [DOCUMENT_DIR stringByAppendingPathComponent:@"temp.mp4"]
+#define DOCUMENT_DIR [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]
+#define TEMP_PATH [DOCUMENT_DIR stringByAppendingPathComponent:@"temp.mov"]
 
 
-@implementation ImageToVideo
+@implementation ImageToVideo {
+    AVAssetExportSession* _assetExport;
+}
 @synthesize allImages = _allImages;
 @synthesize timePerImage = _timePerImage;
 @synthesize transitions = _transitions;
@@ -392,7 +395,9 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
     }
 }
 
-
+- (void)updateProgress {
+    NSLog(@"progress = %f",_assetExport.progress);
+}
 /**
  After Images has been converted to video, add transitions and save to destination path
  */
@@ -426,57 +431,62 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
     [self configureVideoForTransistions:_transitions forVideoComposition:videoComp];
 
     NSURL *outputFileUrl = [NSURL fileURLWithPath:destinationPath];
+    __block NSTimer* progressTracker = nil;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND , 0l), ^{
+        progressTracker=[NSTimer scheduledTimerWithTimeInterval:0.1f target:self selector:@selector(updateProgress) userInfo:nil repeats:YES];
+    });
     
-    AVAssetExportSession* _assetExport = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:EXPORT_QUALITY];
+    _assetExport = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:EXPORT_QUALITY];
     _assetExport.videoComposition = videoComp;
     _assetExport.outputFileType = AVFileTypeMPEG4;
     _assetExport.outputURL = outputFileUrl;
-    
-    
+    [progressTracker fire];
     [_assetExport exportAsynchronouslyWithCompletionHandler:
      ^(void ) {
+         [progressTracker invalidate];
+         [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:[NSNumber numberWithInt:_assetExport.status]];
          switch (_assetExport.status)
          {
              case AVAssetExportSessionStatusFailed:
              {
                  NSError *exportError = _assetExport.error;
                  NSLog(@"Export Error : %@",exportError);
-                 [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:exportError];
+//                 [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:exportError];
                  break;
              }
              case AVAssetExportSessionStatusCompleted:
              {
                  NSLog(@"Completed");
-                 [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:@"Completed"];
+//                 [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:@"Completed"];
                  break;
              }
              case AVAssetExportSessionStatusUnknown:
              {
                  NSLog(@"AVAssetExportSessionStatusUnknown");
-                 [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:@"Unknown"];
+//                 [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:@"Unknown"];
                  break;
              }
              case AVAssetExportSessionStatusExporting:
              {
                  NSLog(@"AVAssetExportSessionStatusExporting");
-                 [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:@"Exporting"];
+//                 [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:@"Exporting"];
                  break;
              }
              case AVAssetExportSessionStatusCancelled:
              {
-                 [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:@"Cancelled"];
+//                 [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:@"Cancelled"];
                  NSLog(@"AVAssetExportSessionStatusCancelled");
                  break;
              }
              case AVAssetExportSessionStatusWaiting:
              {
-                 [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:@"Waiting"];
+//                 [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:@"Waiting"];
                  NSLog(@"AVAssetExportSessionStatusWaiting");
                  break;
              }
              default:
              {
-                 [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:@"Could not get export status"];
+//                 [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:@"Could not get export status"];
                  NSLog(@"didn't get export status");
                  break;
              }

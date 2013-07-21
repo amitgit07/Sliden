@@ -10,12 +10,17 @@
 #import "SPhotoSelectorVc.h"
 #import "SPhotoSelectorVc.h"
 
+#define IntNumber(o) [NSNumber numberWithInt:o]
+
 @interface STransitonSelectorVc ()
 - (void)backButtonTap:(id)sender;
 - (WorkSpace*)createNewWorkSpace;
 @end
 
-@implementation STransitonSelectorVc
+@implementation STransitonSelectorVc {
+    NSArray* transitions;
+    NSMutableArray* selectedTransitions;
+}
 @synthesize workSpace = _workSpace;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -30,8 +35,14 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    transitions = [[NSArray arrayWithObjects:IntNumber(kTransitionTypeFade), IntNumber(kTransitionTypeEnterFromLeft), IntNumber(kTransitionTypeEnterFromRight), IntNumber(kTransitionTypeEnterFromTop), IntNumber(kTransitionTypeEnterFromBottom), IntNumber(kTransitionTypeExitToLeft), IntNumber(kTransitionTypeExitToRight), IntNumber(kTransitionTypeExitToTop), IntNumber(kTransitionTypeExitToBottom), IntNumber(kTransitionTypeFlipFromLeft), IntNumber(kTransitionTypeFlipFromRight), IntNumber(kTransitionTypeFlipFromTop), IntNumber(kTransitionTypeFlipFromBottom), nil] retain];
+
+    selectedTransitions = [[NSMutableArray alloc] initWithCapacity:0];
     self.icarouselView.type = iCarouselTypeRotary;
+    [self getSelectedTransitons];
+    [self.icarouselView reloadData];
     // Do any additional setup after loading the view from its nib.
+    
     
     for (int i = 0; i < 3; i++) {
         UIButton* button = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -76,35 +87,43 @@
 
 #pragma mark -
 #pragma mark iCarousel methods
-
+- (void)getSelectedTransitons {
+    NSString* allTranitionIndexes = _workSpace.transitions;
+    NSArray* allObjs = [allTranitionIndexes componentsSeparatedByString:@"-"];
+    for (NSString* transitionIndex in allObjs) {
+        [selectedTransitions addObject:[NSNumber numberWithInt:[transitionIndex intValue]]];
+    }
+}
 - (NSUInteger)numberOfItemsInCarousel:(iCarousel *)carousel
 {
     //generate 100 item views
     //normally we'd use a backing array
     //as shown in the basic iOS example
     //but for this example we haven't bothered
-    return 10;
+    return [transitions count];
 }
-
+- (void)addAnimationOnView:(STransitionSampleVIew*)view {
+    [view demonstratedTransition:[[transitions objectAtIndex:view.transionIndex] intValue]];//
+}
 - (UIView *)carousel:(iCarousel *)carousel viewForItemAtIndex:(NSUInteger)index reusingView:(UIView *)view
 {
     if (!view)
     {
-    	view = [[[UIView alloc] initWithFrame:CGRectMake(0, 0, 175, 175)] autorelease];
+        view = [STransitionSampleVIew sampelViewWithTransition:kTransitionTypeEnterFromBottom];
         [view setBackgroundColor:[UIColor clearColor]];
-        UIImageView *bg = [[UIImageView alloc] initWithFrame:view.bounds];
-        [bg setBackgroundColor:[UIColor clearColor]];
-        [bg setImage:[UIImage imageNamed:@"video_bg.png"]];
-        [view addSubview:bg];
-        UILabel* lbl = [[UILabel alloc] initWithFrame:CGRectMake(0, 85, 175, 25)];
-        [lbl setTextAlignment:NSTextAlignmentCenter];
-        [lbl setBackgroundColor:[UIColor redColor]];
-        [lbl setTag:100];
-        [lbl setTextColor:[UIColor blackColor]];
-        [view addSubview:lbl];
+        [(STransitionSampleVIew*)view setDelegate:self];
     }
-    UILabel* lbl = (UILabel*)[view viewWithTag:100];
-    [lbl setText:[NSString stringWithFormat:@"%d",index+1]];
+    [(STransitionSampleVIew*)view setTransionIndex:index];
+    [self performSelector:@selector(addAnimationOnView:) withObject:view afterDelay:0];
+    NSPredicate* predicate = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
+        NSNumber* num=(NSNumber*)evaluatedObject;
+        if (num.intValue == [[transitions objectAtIndex:index] intValue]) {
+            return YES;
+        }
+        return NO;
+    }];
+    NSArray* arr = [selectedTransitions filteredArrayUsingPredicate:predicate];
+    [(STransitionSampleVIew*)view setSelected:[arr count]];
     return view;
 }
 
@@ -119,12 +138,43 @@
 }
 
 - (IBAction)applyWholePackTap:(id)sender {
+    [selectedTransitions setArray:transitions];
+    [self.icarouselView reloadData];
 }
-
+- (void)makeTransitionString {
+    NSString *string = [selectedTransitions componentsJoinedByString:@"-"];
+    _workSpace.transitions = string;
+}
 - (IBAction)keepSlidenTap:(id)sender {
     SPhotoSelectorVc* newObj = [[[SPhotoSelectorVc alloc] initWithNibName:@"SPhotoSelectorVc" bundle:nil] autorelease];
-    newObj.workSpace = [self createNewWorkSpace];
+    if (!_workSpace) {
+        _workSpace = [self createNewWorkSpace];
+    }
+    [self makeTransitionString];
+    [APP_DELEGATE saveContext];
+    newObj.workSpace = _workSpace;
     [self.navigationController pushViewController:newObj animated:YES];
+}
+- (void)selectionStateChangedForView:(STransitionSampleVIew*)view newState:(BOOL)selected {
+    
+    NSPredicate* predicate = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
+        NSNumber* num=(NSNumber*)evaluatedObject;
+        if (num.intValue == view.transiton) {
+            return YES;
+        }
+        return NO;
+    }];
+    NSArray* arr =[selectedTransitions filteredArrayUsingPredicate:predicate];
+    if (selected) {
+        if (![arr count]) {
+            [selectedTransitions addObject:[NSNumber numberWithInt:view.transiton]];
+        }
+    }
+    else {
+        if ([arr count])
+            [selectedTransitions removeObject:[arr lastObject]];
+    }
+    
 }
 #pragma mark - Private Methods
 - (void)backButtonTap:(id)sender {
