@@ -2,7 +2,7 @@
 //  WorkingImage.h
 //  Sliden
 //
-//  Created by Amit Priyadarshi on 17/07/13.
+//  Created by Amit Priyadarshi on 21/07/13.
 //  Copyright (c) 2013 Amit Priyadarshi. All rights reserved.
 //
 

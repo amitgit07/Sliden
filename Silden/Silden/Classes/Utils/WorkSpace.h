@@ -2,7 +2,7 @@
 //  WorkSpace.h
 //  Sliden
 //
-//  Created by Amit Priyadarshi on 17/07/13.
+//  Created by Amit Priyadarshi on 21/07/13.
 //  Copyright (c) 2013 Amit Priyadarshi. All rights reserved.
 //
 
@@ -18,6 +18,7 @@
 @property (nonatomic, retain) NSString * title;
 @property (nonatomic, retain) NSString * trackUrl;
 @property (nonatomic, retain) NSString * videoDescription;
+@property (nonatomic, retain) NSString * transitions;
 @property (nonatomic, retain) NSSet *images;
 @end
 
