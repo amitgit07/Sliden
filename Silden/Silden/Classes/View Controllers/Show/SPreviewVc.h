@@ -10,10 +10,6 @@
 #import "WorkSpace.h"
 #import <MediaPlayer/MediaPlayer.h>
 
-#define Video_W 640.0f
-#define Video_H 480.0f
-#define Video_Thumb_W 600.0f
-#define Video_Thumb_H 350.0f
 
 @interface SPreviewVc : SGrayViewController <UITableViewDataSource, UITableViewDelegate>
 @property (nonatomic, strong) WorkSpace* workSpace;

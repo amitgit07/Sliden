@@ -155,13 +155,13 @@
 - (IBAction)registerButtonTap:(UIButton *)sender {
     //[self resignAllResponder];
     if (sender.tag == TAG_BTN_NEXT) {
-        [_profilePicButton setHidden:NO];
-        [_profilePicButton setEnabled:YES];
         NSString* error = [self checkForInfoPersonalValidity];
         if (error) {
             [SCI showAlertWithMsg:error];
             return;
         }
+        [_profilePicButton setHidden:NO];
+        [_profilePicButton setEnabled:YES];
         sender.tag = TAG_BTN_Register;
         [sender setImage:[UIImage imageNamed:@"register_done_button.png"] forState:UIControlStateNormal];
         [_pageTitle setText:@"STEP 2 - CREATE YOUR SLIDEN IDENTITY"];

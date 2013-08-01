@@ -50,6 +50,7 @@
     [assetLibrary release];
 
     // Load Albums into assetGroups
+    self.title = @"Camera Roll";
     dispatch_async(dispatch_get_main_queue(), ^
     {
         NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];

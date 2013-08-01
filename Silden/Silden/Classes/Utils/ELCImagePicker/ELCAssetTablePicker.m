@@ -36,7 +36,7 @@
     NSMutableArray *tempArray = [[NSMutableArray alloc] init];
     self.elcAssets = tempArray;
     [tempArray release];
-	
+	self.title = @"Camera Roll";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(someImageSelected) name:@"image selected" object:nil];
     if (self.immediateReturn) {
         

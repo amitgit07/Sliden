@@ -9,51 +9,9 @@
 #import "SLoadSavedShowVc.h"
 #import "STransitonSelectorVc.h"
 #import "WorkSpace.h"
+#import "SDefaultSlidenCells.h"
 
 
-@interface LoadShowCells : UITableViewCell
-@property(nonatomic, retain) UILabel* showTitleLabel;
-@property(nonatomic, retain) UILabel* lastModifiedDateLabel;
-@property(nonatomic, retain) UILabel* lastModifiedTimeLabel;
-@end
-
-@implementation LoadShowCells
-
-@synthesize showTitleLabel=_showTitleLabel;
-@synthesize lastModifiedDateLabel=_lastModifiedDateLabel;
-@synthesize lastModifiedTimeLabel=_lastModifiedTimeLabel;
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
-    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
-    if (self) {
-        //
-        _showTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(15, 18, 165, 18)];
-        [_showTitleLabel setTextAlignment:NSTextAlignmentLeft];
-        [_showTitleLabel setTextColor:RGBA(36, 143, 183, 1.0)];
-        [_showTitleLabel setFont:[UIFont boldSystemFontOfSize:13]];
-        [_showTitleLabel setBackgroundColor:[UIColor clearColor]];
-        [self.contentView addSubview:_showTitleLabel];
-
-        _lastModifiedDateLabel = [[UILabel alloc] initWithFrame:CGRectMake(185, 18, 165, 18)];
-        [_lastModifiedDateLabel setTextAlignment:NSTextAlignmentLeft];
-        [_lastModifiedDateLabel setTextColor:RGBA(93, 93, 93, 1.0)];
-        [_lastModifiedDateLabel setFont:[UIFont boldSystemFontOfSize:11]];
-        [_lastModifiedDateLabel setBackgroundColor:[UIColor clearColor]];
-        [self.contentView addSubview:_lastModifiedDateLabel];
-
-        _lastModifiedTimeLabel = [[UILabel alloc] initWithFrame:CGRectMake(250, 18, 165, 18)];
-        [_lastModifiedTimeLabel setTextAlignment:NSTextAlignmentLeft];
-        [_lastModifiedTimeLabel setTextColor:RGBA(93, 93, 93, 1.0)];
-        [_lastModifiedTimeLabel setFont:[UIFont boldSystemFontOfSize:11]];
-        [_lastModifiedTimeLabel setBackgroundColor:[UIColor clearColor]];
-        [self.contentView addSubview:_lastModifiedTimeLabel];
-        
-        [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
-        [self setSelectionStyle:UITableViewCellSelectionStyleNone];
-    }
-    return self;
-}
-
-@end
 
 @interface SLoadSavedShowVc ()
 
@@ -83,7 +41,7 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void)configureCell:(LoadShowCells *)cell atIndexPath:(NSIndexPath *)indexPath
+- (void)configureCell:(SDefaultSlidenCells *)cell atIndexPath:(NSIndexPath *)indexPath
 {
     WorkSpace *object = [self.fetchedResultsController objectAtIndexPath:indexPath];
     cell.showTitleLabel.text = object.title;
@@ -112,9 +70,9 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *cellIdentifier = @"cell";
-    LoadShowCells* cell = (LoadShowCells*)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    SDefaultSlidenCells* cell = (SDefaultSlidenCells*)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
     if (!cell) {
-        cell = [[[LoadShowCells alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier] autorelease];
+        cell = [[[SDefaultSlidenCells alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier] autorelease];
         [cell setSelectionStyle:UITableViewCellSelectionStyleGray];
     }
     [self configureCell:cell atIndexPath:indexPath];
@@ -214,7 +172,7 @@
             break;
             
         case NSFetchedResultsChangeUpdate:
-            [self configureCell:(LoadShowCells*)[tableView cellForRowAtIndexPath:indexPath] atIndexPath:indexPath];
+            [self configureCell:(SDefaultSlidenCells*)[tableView cellForRowAtIndexPath:indexPath] atIndexPath:indexPath];
             break;
             
         case NSFetchedResultsChangeMove:
