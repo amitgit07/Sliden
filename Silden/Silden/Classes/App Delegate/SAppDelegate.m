@@ -18,7 +18,10 @@
 #import "SMoreVc.h"
 
 
-@implementation SAppDelegate
+@implementation SAppDelegate {
+    UILabel* _statusMsgLabel;
+    UILabel* _progressLabel;
+}
 @synthesize launchedOtherApplication=_launchedOtherApplication;
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize managedObjectModel = _managedObjectModel;
@@ -59,6 +62,23 @@
     [_imgView setAnimationRepeatCount:0];
     [_imgView setBackgroundColor:[UIColor clearColor]];
     [_screenLock addSubview:_imgView];
+    
+    _statusMsgLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 30, 300, 40)];
+    [_statusMsgLabel setTextColor:[UIColor whiteColor]];
+    [_statusMsgLabel setFont:[UIFont boldSystemFontOfSize:14]];
+    [_statusMsgLabel setNumberOfLines:2];
+    [_statusMsgLabel setTextAlignment:NSTextAlignmentCenter];
+    [_statusMsgLabel setBackgroundColor:[UIColor clearColor]];
+    [_screenLock addSubview:_statusMsgLabel];
+
+    _progressLabel = [[UILabel alloc] initWithFrame:CGRectMake(50, 80, 220, 20)];
+    [_progressLabel setTextColor:[UIColor whiteColor]];
+    [_progressLabel setFont:[UIFont boldSystemFontOfSize:14]];
+    [_progressLabel setNumberOfLines:1];
+    [_progressLabel setTextAlignment:NSTextAlignmentCenter];
+    [_progressLabel setBackgroundColor:[UIColor clearColor]];
+    [_screenLock addSubview:_progressLabel];
+
     [self.window addSubview:_screenLock];
     [_screenLock setHidden:YES];
 }
@@ -194,15 +214,52 @@
 {
 }
 */
-- (void)showActivity:(BOOL)show {
-    [_screenLock setHidden:!show];
-    if (show) {
-        [self.window bringSubviewToFront:_screenLock];
-        [_imgView startAnimating];
+- (void)showLockScreenStatusWithMessage:(NSString*)msg {
+    _statusMsgLabel.text = msg;
+}
+- (void)setLockScreenProgress:(float)value {
+    static Byte i = 0;
+    static NSString* str = nil;
+    switch ((i++)%4) {
+        case 0:
+            str=@"...   ";
+            break;
+        case 1:
+            str=@" ...  ";
+            break;
+        case 2:
+            str=@"  ... ";
+            break;
+        case 3:
+            str=@"   ...";
+            break;
+            
+        default:
+            break;
+    }
+    if (value < 1) {
+        _progressLabel.text = [NSString stringWithFormat:@"%0.2f %@",value*100,@"%"];
     }
     else {
-        [_imgView stopAnimating];
+        _progressLabel.text = str;
     }
+}
+- (void)showActivity:(BOOL)show {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_screenLock setHidden:!show];
+        [_statusMsgLabel setHidden:!show];
+        [_progressLabel setHidden:!show];
+        if (show) {
+            [self.window bringSubviewToFront:_screenLock];
+            [_imgView startAnimating];
+            [_progressLabel setFrame:CGRectMake(_progressLabel.frame.origin.x, _imgView.frame.origin.y-20, _progressLabel.frame.size.width, _progressLabel.frame.size.height)];
+        }
+        else {
+            [_imgView stopAnimating];
+            [_statusMsgLabel setText:@""];
+            [_progressLabel setText:@""];
+        }
+    });
 }
 - (void)setNavigationBarBackground:(BOOL)withAppName {
     if (withAppName) {

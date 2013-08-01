@@ -35,7 +35,7 @@
 }
 - (void)viewDidAppear:(BOOL)animated {
     self.title = @"Home";
-//    if ([[PFFacebookUtils session] isOpen]) {
+    if ([[PFFacebookUtils session] isOpen]) {
         [UIView transitionFromView:self.navigationController.view
                             toView:[[APP_DELEGATE tabBarController] view]
                           duration:0.35f
@@ -43,6 +43,13 @@
                         completion:^(BOOL finished) {
                             [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE tabBarController]];
                         }];
+    }
+
+//    else {
+//        for (int i = 1; i < 97; i++) {
+//            [self performSelector:@selector(registerNewUser) withObject:nil afterDelay:i * 0.5f];
+//        }
+//
 //    }
 
 }
@@ -108,9 +115,6 @@
 }
 
 - (IBAction)registerButtonTap:(UIButton *)sender {
-//    for (int i = 1; i < 97; i++) {
-//        [self performSelector:@selector(registerNewUser) withObject:nil afterDelay:i * 0.5f];
-//    }
     NAPRegistrationVc* registerVc = [[[NAPRegistrationVc alloc] initWithNibName:@"NAPRegistrationVc" bundle:nil] autorelease];
     [self.navigationController pushViewController:registerVc animated:YES];
 }

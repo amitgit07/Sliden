@@ -39,14 +39,17 @@
 
 - (void)viewDidLoad
 {
+    //NSLog(@"%s",__FUNCTION__);
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     [self.addPhotoButton setBackgroundImage:[Image(@"blueBtn37.png") stretchableImageWithLeftCapWidth:15 topCapHeight:0] forState:UIControlStateNormal];
     [self.rearrangeButton setBackgroundImage:StreachImage(@"blueBtn37.png", 15, 0) forState:UIControlStateNormal];    
 }
+
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
+    self.title = @"Import Photos";
+
     NSArray* images = [self.workSpace.images allObjects];
     NSSortDescriptor* descriptior = [[NSSortDescriptor alloc] initWithKey:@"imageIndex" ascending:YES];
     allImages = [[NSMutableArray arrayWithArray:[images sortedArrayUsingDescriptors:[NSArray arrayWithObject:descriptior]]] retain];
@@ -66,6 +69,7 @@
 }
 #pragma mark - Private methods
 - (void)addImagesInScrollViewFromPreviousSavedState {
+    //NSLog(@"%s",__FUNCTION__);
 	currentX = 8;
     currentY = 8;
     if (!tileFrame) {
@@ -91,6 +95,7 @@
 	}
 }
 - (void)prepareToRearrange {
+    //NSLog(@"%s",__FUNCTION__);
     CABasicAnimation* anim = [CABasicAnimation animationWithKeyPath:@"transform.rotation"];
     [anim setToValue:[NSNumber numberWithFloat:0.0f]];
     [anim setFromValue:[NSNumber numberWithDouble:M_PI/16]]; // rotation angle
@@ -100,11 +105,13 @@
     //[self.viewYouAreShaking.layer addAnimation:anim forKey:@"iconShake"];
 }
 - (CGRect)frameForThumbAtIndex:(int)index {
+    //NSLog(@"%s",__FUNCTION__);
     int row = index % 4;
     int column = (int)floor(index/4);
     return CGRectMake(row*78+8, column*78+8, 70, 70);
 }
 - (void)repositionTumbAtIndex:(int)from toIndex:(int)to {
+    //NSLog(@"%s",__FUNCTION__);
     if (from < to) {//going down
         for (int i = from; i<to; i++) {
             DragbleThumb* thumb = allThumbs[i];
@@ -121,11 +128,48 @@
     }
 }
 #pragma mark - Instance methods
+- (void)createVideoThumbFromImage:(NSString*)path {
+//    if ([[NSFileManager defaultManager] fileExistsAtPath:path]) return;
+    //NSLog(@"%s",__FUNCTION__);
+    UIImage* image = [UIImage imageWithContentsOfFile:path];
+    float actualHeight = image.size.height;
+    float actualWidth = image.size.width;
+    float rawRatio = actualWidth/actualHeight;
+    float ratioRequired = Video_Thumb_W/Video_Thumb_H;
+    CGSize videoSize = CGSizeMake(Video_Thumb_W, Video_Thumb_H);
+    float x=0, y=0;
+    
+    if (rawRatio >= ratioRequired) {
+        actualHeight = Video_Thumb_H;
+        actualWidth *= actualHeight/image.size.height;
+    }
+    else {
+        actualWidth = Video_Thumb_W;
+        actualHeight *= actualWidth/image.size.width;
+    }
+    
+    CGRect rect = CGRectMake(x, y, actualWidth, actualHeight);
+    UIGraphicsBeginImageContext(videoSize);
+    [image drawInRect:rect];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    NSData * binaryImageData = UIImagePNGRepresentation(newImage);
+    NSString* thumbPath = [[path stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"thumb.png"];
+    [binaryImageData writeToFile:thumbPath atomically:YES];
+}
 - (IBAction)keepSlidenButtonTap:(UIButton *)sender {
-    SInfoEditorVc* infoEditor = [[SInfoEditorVc alloc] initWithNibName:@"SInfoEditorVc" bundle:nil];
-    [APP_DELEGATE saveContext];
-    infoEditor.workSpace = self.workSpace;
-    [self.navigationController pushViewController:infoEditor animated:YES];
+    //NSLog(@"%s",__FUNCTION__);
+    if ([_workSpace.images count]>1) {
+        SInfoEditorVc* infoEditor = [[SInfoEditorVc alloc] initWithNibName:@"SInfoEditorVc" bundle:nil];
+        [APP_DELEGATE saveContext];
+        infoEditor.workSpace = self.workSpace;
+        
+        self.title = @"Back";
+        [self.navigationController pushViewController:infoEditor animated:YES];
+    }
+    else {
+        [SCI showAlertWithMsg:@"Please select two or more photos."];
+    }
 }
 
 - (IBAction)homeButtonTap:(UIButton *)sender {
@@ -135,6 +179,7 @@
 
 
 - (IBAction)rearrangeButtonTap:(UIButton *)sender {
+    //NSLog(@"%s",__FUNCTION__);
     if ([sender.titleLabel.text isEqualToString:@"Re-arrange"]) {
         for (DragbleThumb* thumb in allThumbs) {
             [thumb setIsDraggingEnabled:YES];
@@ -153,12 +198,12 @@
     }
 }
 - (IBAction)addPhotosButtonTap:(UIButton *)sender {
+    //NSLog(@"%s",__FUNCTION__);
     ELCAlbumPickerController *albumController = [[ELCAlbumPickerController alloc] initWithNibName: nil bundle: nil];
     ELCImagePickerController *elcPicker = [[ELCImagePickerController alloc] initWithRootViewController:albumController];
     [albumController setParent:elcPicker];
     [elcPicker setDelegate:self];
-    
-    
+    [APP_DELEGATE setNavigationBarBackground:NO];
     if ([self respondsToSelector:@selector(presentViewController:animated:completion:)]){
         [self presentViewController:elcPicker animated:YES completion:nil];
     } else {
@@ -170,6 +215,7 @@
 }
 #pragma mark ELCImagePickerControllerDelegate Methods
 - (WorkingImage*)addNewImageAtPath:(NSString*)path andIndex:(int)index {
+    //NSLog(@"%s",__FUNCTION__);
     NSManagedObjectContext* context = [APP_DELEGATE managedObjectContext];
     WorkingImage* _workImage = [NSEntityDescription insertNewObjectForEntityForName:@"WorkingImage" inManagedObjectContext:context];
     _workImage.imageAdded = [NSDate date];
@@ -194,12 +240,18 @@
     NSString* workingFolder = DOC_DIR;
     workingFolder = [workingFolder stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",_workSpace.dateCreated]];
     NSString* filePath = nil;
+    BOOL makeThumbToo = YES;
 	for(NSDictionary *dict in info) {
+        _workSpace.isAnyChange = [NSNumber numberWithInt:([_workSpace.isAnyChange integerValue] | WorkSpaceChangedInPhotosSelection)];
         UIImage *image = [dict objectForKey:UIImagePickerControllerOriginalImage];
         filePath = [workingFolder stringByAppendingPathComponent:[NSString stringWithFormat:@"%d.png",lastIndex]];
         NSData * binaryImageData = UIImagePNGRepresentation(image);
         [binaryImageData writeToFile:filePath atomically:YES];
-		
+        if (makeThumbToo) {
+            [self createVideoThumbFromImage:filePath];
+            makeThumbToo = NO;
+        }
+
         DragbleThumb* view = [[DragbleThumb alloc] initWithFrame:CGRectMake(currentX, currentY, 70, 70)];
         [view.imageThumb setImage:[dict objectForKey:@"UIImageThumbImage"]];
         [_scrollView addSubview:view];
@@ -227,28 +279,33 @@
     } else {
         [self dismissModalViewControllerAnimated:YES];
     }
-    [APP_DELEGATE setNavigationBarBackground:YES];
+    [APP_DELEGATE setNavigationBarBackground:NO];
 }
 
 #pragma mark - DragableView Delegate 
 - (void)dragbleThumb:(DragbleThumb*)thumb didBeginFromPosition:(CGPoint)point {
+    //NSLog(@"%s",__FUNCTION__);
     heldTile = thumb;
     
     touchStartLocation = point;
     heldStartPosition = thumb.frame.origin;
-    heldFrameIndex = thumb.thumbIndex;
+    heldFrameIndex = [allThumbs indexOfObject:thumb];
     
     [self.scrollView bringSubviewToFront:thumb];
     [thumb appearDraggable];
     [self startTilesWiggling];
+    
+    _workSpace.isAnyChange = [NSNumber numberWithInt:([_workSpace.isAnyChange integerValue] | WorkSpaceChangedInPhotosSelection)];
 }
 - (void)dragbleThumb:(DragbleThumb*)thumb didMovingToPosition:(CGPoint)point {
+    //NSLog(@"%s",__FUNCTION__);
     if (heldTile) {
         [self moveHeldTileToPoint:point];
         [self moveUnheldTilesAwayFromPoint:point];
     }
 }
 - (void)moveHeldTileToPoint:(CGPoint)location {
+    //NSLog(@"%s",__FUNCTION__);
     float dx = location.x - touchStartLocation.x;
     float dy = location.y - touchStartLocation.y;
     CGPoint newPosition = CGPointMake(heldStartPosition.x + dx, heldStartPosition.y + dy);
@@ -258,6 +315,7 @@
     [UIView commitAnimations];
 }
 - (void)moveUnheldTilesAwayFromPoint:(CGPoint)location {
+    //NSLog(@"%s",__FUNCTION__);
     int frameIndex = [self indexOfClosestFrameToPoint:location];
 
     if (frameIndex != heldFrameIndex) {
@@ -288,6 +346,7 @@
     }
 }
 - (int)indexOfClosestFrameToPoint:(CGPoint)point {
+    //NSLog(@"%s",__FUNCTION__);
     int index = 0;
     float minDist = FLT_MAX;
     int i = 0;
@@ -308,6 +367,7 @@
 }
 
 - (void)dragbleThumb:(DragbleThumb*)thumb didEndOnPosition:(CGPoint)point {
+    //NSLog(@"%s",__FUNCTION__);
     if (heldTile) {
         [heldTile appearNormal];
         heldTile.frame = [(NSValue*)tileFrame[heldFrameIndex] CGRectValue];
@@ -317,8 +377,11 @@
     }
 }
 - (void)startTilesWiggling {
+    //NSLog(@"%s",__FUNCTION__);
     for (DragbleThumb* thumb in allThumbs) {
         if (thumb != heldTile) {
+            thumb.layer.cornerRadius =5.0f;
+            [thumb.layer setMasksToBounds:YES];
             [thumb startWiggling];
         }
     }
@@ -326,11 +389,20 @@
 
 
 - (void)stopTilesWiggling {
+    //NSLog(@"%s",__FUNCTION__);
+    [allImages removeAllObjects];
+    int index = 0;
     for (DragbleThumb* thumb in allThumbs) {
         [thumb stopWiggling];
+        WorkingImage* image = thumb.workingImage;
+        image.imageIndex = [NSNumber numberWithInt:index++];
+        [allImages addObject:thumb.workingImage];
+        thumb.layer.cornerRadius =0.0f;
     }
+    [APP_DELEGATE saveContext];
 }
 - (void)didTapToEditDragbleThumb:(DragbleThumb*)thumb {
+    //NSLog(@"%s",__FUNCTION__);
     _beingEditedImage = thumb;
     UIImage* image = [UIImage imageWithContentsOfFile:thumb.workingImage.imageUrl];
     [self launchPhotoEditorWithImage:image highResolutionImage:nil];

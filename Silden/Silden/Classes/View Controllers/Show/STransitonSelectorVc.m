@@ -35,7 +35,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    transitions = [[NSArray arrayWithObjects:IntNumber(kTransitionTypeFade), IntNumber(kTransitionTypeEnterFromLeft), IntNumber(kTransitionTypeEnterFromRight), IntNumber(kTransitionTypeEnterFromTop), IntNumber(kTransitionTypeEnterFromBottom), IntNumber(kTransitionTypeExitToLeft), IntNumber(kTransitionTypeExitToRight), IntNumber(kTransitionTypeExitToTop), IntNumber(kTransitionTypeExitToBottom), IntNumber(kTransitionTypeFlipFromLeft), IntNumber(kTransitionTypeFlipFromRight), IntNumber(kTransitionTypeFlipFromTop), IntNumber(kTransitionTypeFlipFromBottom), nil] retain];
+    transitions = [[NSArray arrayWithObjects:IntNumber(kTransitionTypeFade), IntNumber(kTransitionTypeExitToLeft), IntNumber(kTransitionTypeExitToRight), IntNumber(kTransitionTypeExitToTop), IntNumber(kTransitionTypeExitToBottom), IntNumber(kTransitionTypeFlipFromLeft), IntNumber(kTransitionTypeFlipFromRight), IntNumber(kTransitionTypeFlipFromTop), IntNumber(kTransitionTypeFlipFromBottom), IntNumber(kTransitionTypeEnterFromLeft), IntNumber(kTransitionTypeEnterFromRight), IntNumber(kTransitionTypeEnterFromTop), IntNumber(kTransitionTypeEnterFromBottom), nil] retain];
 
     selectedTransitions = [[NSMutableArray alloc] initWithCapacity:0];
     self.icarouselView.type = iCarouselTypeRotary;
@@ -52,7 +52,7 @@
             [button setTitle:@"CLASSIC PACK" forState:UIControlStateNormal];
         }
         else {
-            [button setTitle:@"COOMING SOON" forState:UIControlStateNormal];
+            [button setTitle:@"COMING SOON" forState:UIControlStateNormal];
             [button setEnabled:NO];
         }
         [button.titleLabel setFont:[UIFont boldSystemFontOfSize:9]];
@@ -83,7 +83,10 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    self.title = @"Transitions";
+}
 
 #pragma mark -
 #pragma mark iCarousel methods
@@ -141,19 +144,27 @@
     [selectedTransitions setArray:transitions];
     [self.icarouselView reloadData];
 }
-- (void)makeTransitionString {
-    NSString *string = [selectedTransitions componentsJoinedByString:@"-"];
-    _workSpace.transitions = string;
+- (NSString*)makeTransitionString {
+    DLog(@"1");
+    NSString* str = [selectedTransitions componentsJoinedByString:@"-"];
+    return str;
 }
 - (IBAction)keepSlidenTap:(id)sender {
-    SPhotoSelectorVc* newObj = [[[SPhotoSelectorVc alloc] initWithNibName:@"SPhotoSelectorVc" bundle:nil] autorelease];
-    if (!_workSpace) {
-        _workSpace = [self createNewWorkSpace];
+    NSString* transition = [self makeTransitionString];
+    if (transition.length < 1) {
+        [SCI showAlertWithMsg:@"Please select at least one transition."];
     }
-    [self makeTransitionString];
-    [APP_DELEGATE saveContext];
-    newObj.workSpace = _workSpace;
-    [self.navigationController pushViewController:newObj animated:YES];
+    else {
+        if (!_workSpace) 
+            _workSpace = [self createNewWorkSpace];
+        if (![_workSpace.transitions isEqualToString:transition]) _workSpace.isAnyChange = [NSNumber numberWithInt:([_workSpace.isAnyChange integerValue] | WorkSpaceChangedInTransition)];
+        _workSpace.transitions = transition;
+        SPhotoSelectorVc* newObj = [[SPhotoSelectorVc alloc] initWithNibName:@"SPhotoSelectorVc" bundle:nil];
+        newObj.workSpace = _workSpace;
+        [self.navigationController pushViewController:newObj animated:YES];
+        self.title = @"Back";
+        [APP_DELEGATE saveContext];
+    }
 }
 - (void)selectionStateChangedForView:(STransitionSampleVIew*)view newState:(BOOL)selected {
     
@@ -181,6 +192,7 @@
     [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE tabBarController]];
 }
 - (WorkSpace*)createNewWorkSpace {
+    DLog(@"1");
     NSError* error;
     if (!_workSpace) {
         NSManagedObjectContext* context = [APP_DELEGATE managedObjectContext];
@@ -188,16 +200,18 @@
         _workSpace.dateCreated = [NSDate date];
         _workSpace.dateModified = [NSDate date];
         _workSpace.title = @"Unfinished Show";
-        [APP_DELEGATE saveContext];
+        DLog(@"2");
     }
 
     NSFileManager* fileManager = [NSFileManager defaultManager];
-    NSString* folderPath = [DOC_DIR stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",_workSpace.dateCreated]];
-    [fileManager createDirectoryAtPath:folderPath withIntermediateDirectories:NO attributes:nil error:&error];
-    if (error) {
-        NSLog(@"%@",error);
+    DLog(@"2.5");
+    NSString* folderPath = [DOC_DIR stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",[NSDate date]]];
+    DLog(@"3");
+    if ([fileManager createDirectoryAtPath:folderPath withIntermediateDirectories:NO attributes:nil error:&error]) {
+        DLog(@"3.5");
+        return _workSpace;
     }
-
-    return _workSpace;
+    DLog(@"4");
+    return nil;
 }
 @end

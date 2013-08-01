@@ -22,5 +22,6 @@ NSString* const kKeyGender = @"gender";
 NSString* const kKeyLocation = @"location";
 NSString* const kKeyRelationshipStatus = @"relationship_status";
 NSString* const kKeyFollowing = @"following_user";
+NSString* const kKeyFollowers = @"followers";
 NSString* const kKeyFollowingUsers = @"friends_ids";
 NSString* const kKeyProfilePic = @"profile_pic";

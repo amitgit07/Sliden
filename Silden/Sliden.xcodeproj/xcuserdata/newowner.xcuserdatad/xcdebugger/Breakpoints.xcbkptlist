@@ -7,114 +7,40 @@
          shouldBeEnabled = "No"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "Silden/Classes/Utils/ELCImagePicker/ELCAssetTablePicker.m"
-         timestampString = "393447895.73295"
+         filePath = "Silden/Classes/App Delegate/SAppDelegate.m"
+         timestampString = "396989827.651213"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "182"
-         endingLineNumber = "182"
-         landmarkName = "-numberOfSectionsInTableView:"
+         startingLineNumber = "249"
+         endingLineNumber = "249"
+         landmarkName = "-showActivity:"
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
          shouldBeEnabled = "No"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "Silden/Classes/Utils/ELCImagePicker/ELCAssetTablePicker.m"
-         timestampString = "393447384.588112"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "128"
-         endingLineNumber = "128"
-         landmarkName = "-someImageSelected"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "Silden/Classes/Utils/ELCImagePicker/ELCAssetTablePicker.m"
-         timestampString = "393447895.73295"
+         filePath = "Silden/Classes/App Delegate/SAppDelegate.m"
+         timestampString = "396979096.670347"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "218"
          endingLineNumber = "218"
-         landmarkName = "-tableView:viewForFooterInSection:"
+         landmarkName = "-showLockScreenStatusWithMessage:"
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
          shouldBeEnabled = "No"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "Silden/Classes/View Controllers/Show/SLoadSavedShowVc.m"
-         timestampString = "393666996.59192"
+         filePath = "Silden/Classes/View Controllers/More/SMoreVc.m"
+         timestampString = "397025041.806736"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "230"
-         endingLineNumber = "230"
-         landmarkName = "-dealloc"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "Silden/Classes/View Controllers/Show/SLoadSavedShowVc.m"
-         timestampString = "393666996.59192"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "175"
-         endingLineNumber = "175"
-         landmarkName = "-managedObjectContext"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "Silden/Classes/View Controllers/Show/SPhotoSelectorVc.m"
-         timestampString = "395400495.463526"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "103"
-         endingLineNumber = "103"
-         landmarkName = "-repositionTumbAtIndex:toIndex:"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "Silden/Classes/View Controllers/Show/DragbleThumb.m"
-         timestampString = "395396997.191452"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "29"
-         endingLineNumber = "29"
-         landmarkName = "-touchesBegan:withEvent:"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "Silden/Classes/View Controllers/Show/SInfoEditorVc.m"
-         timestampString = "395720238.471865"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "36"
-         endingLineNumber = "36"
-         landmarkName = "-viewWillAppear:"
+         startingLineNumber = "71"
+         endingLineNumber = "71"
+         landmarkName = "-tableView:didSelectRowAtIndexPath:"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>
-   <ExceptionBreakpoints>
-      <ExceptionBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         scope = "0"
-         stopOnStyle = "0">
-      </ExceptionBreakpoint>
-   </ExceptionBreakpoints>
 </Bucket>

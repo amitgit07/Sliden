@@ -9,5 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface SMoreVc : UIViewController
+- (IBAction)connectViaFbButtonTap:(UIButton *)sender;
+@property (retain, nonatomic) IBOutlet UITableView *tableView;
 
 @end

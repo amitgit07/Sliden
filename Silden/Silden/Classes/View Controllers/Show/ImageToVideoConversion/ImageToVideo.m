@@ -31,6 +31,7 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
 
 #define DOCUMENT_DIR [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]
 #define TEMP_PATH [DOCUMENT_DIR stringByAppendingPathComponent:@"temp.mov"]
+#define MUSIC_PATH [DOCUMENT_DIR stringByAppendingPathComponent:@"music.mp3"]
 
 
 @implementation ImageToVideo {
@@ -39,6 +40,8 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
 @synthesize allImages = _allImages;
 @synthesize timePerImage = _timePerImage;
 @synthesize transitions = _transitions;
+@synthesize musicFilePath=_musicFilePath;
+@synthesize progressTracker=_progressTracker;
 
 -(id)init {
     self = [super init];
@@ -247,7 +250,6 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
 }
 
 -(void)addEnterTransitionForLayer:(CALayer*)aLayer fromLayer:(CALayer*)fromLayer WithType:(TransistionType)_transitionType forAnimationAfterDelay:(int64_t)delay {
-    
     /**
      Create show animation for animation layers
      */
@@ -272,17 +274,17 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
     moveInTransform.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
     [aLayer addAnimation:moveInTransform forKey:@"MoveIn"];
     
-    /**
-     Hide the layers after transition is completed
-     */
-    CABasicAnimation *hideAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
-    hideAnimation.toValue = [NSNumber numberWithFloat:0.0];
-    hideAnimation.additive = NO;
-    hideAnimation.removedOnCompletion = NO;
-    hideAnimation.beginTime = delay;
-    hideAnimation.duration = BufferTime;
-    hideAnimation.fillMode = kCAFillModeBoth;
-    [aLayer addAnimation:hideAnimation forKey:@"hideAnimation"];
+//    /**
+//     Hide the layers which was there previously
+//     */
+//    CABasicAnimation *hideAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+//    hideAnimation.toValue = [NSNumber numberWithFloat:0.0];
+//    hideAnimation.additive = NO;
+//    hideAnimation.removedOnCompletion = NO;
+//    hideAnimation.beginTime = delay;
+//    hideAnimation.duration = BufferTime;
+//    hideAnimation.fillMode = kCAFillModeBoth;
+//    [fromLayer addAnimation:hideAnimation forKey:@"hideAnimation"];
 }
 
 
@@ -295,7 +297,7 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
     // Get two images required for animations
     UIImage *image = [_allImages objectAtIndex:(indexOfImage)];
     UIImage *prevImage = nil;
-    if(indexOfImage > 0)
+    if(indexOfImage != 0)
        prevImage = [_allImages objectAtIndex:(indexOfImage-1)];
     
     
@@ -318,34 +320,39 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
     fromLayer.geometryFlipped = YES;
     fromLayer.opacity = 0;
     
-    
-    [videoLayer addSublayer:aLayer];
-    
-    
     switch (_transitionType) {
         case kTransitionTypeNone:
             break;
         case kTransitionTypeFade:
+            [videoLayer addSublayer:aLayer];
             [self addFadeAnimationToLayer:aLayer forAnimationAfterDelay:time];
             break;
         case kTransitionTypeEnterFromLeft:
             [aLayer setAnchorPoint:CGPointMake(0, 0)];
             [aLayer setFrame:CGRectMake(-CGRectGetWidth(aLayer.frame), 0, CGRectGetWidth(aLayer.frame), CGRectGetHeight(aLayer.frame))];
+//            [videoLayer addSublayer:fromLayer];
+            [videoLayer addSublayer:aLayer];
             [self addEnterTransitionForLayer:aLayer fromLayer:fromLayer WithType:_transitionType forAnimationAfterDelay:time];
             break;
         case kTransitionTypeEnterFromRight:
             [aLayer setAnchorPoint:CGPointMake(0, 0)];
             [aLayer setFrame:CGRectMake(CGRectGetWidth(aLayer.frame), 0, CGRectGetWidth(aLayer.frame), CGRectGetHeight(aLayer.frame))];
+//            [videoLayer addSublayer:fromLayer];
+            [videoLayer addSublayer:aLayer];
             [self addEnterTransitionForLayer:aLayer fromLayer:fromLayer WithType:_transitionType forAnimationAfterDelay:time];
             break;
         case kTransitionTypeEnterFromTop:
             [aLayer setAnchorPoint:CGPointMake(0, 0)];
             [aLayer setFrame:CGRectMake(0, CGRectGetHeight(aLayer.frame), CGRectGetWidth(aLayer.frame), CGRectGetHeight(aLayer.frame))];
+//            [videoLayer addSublayer:fromLayer];
+            [videoLayer addSublayer:aLayer];
             [self addEnterTransitionForLayer:aLayer fromLayer:fromLayer WithType:_transitionType forAnimationAfterDelay:time];
             break;
         case kTransitionTypeEnterFromBottom:
             [aLayer setAnchorPoint:CGPointMake(0, 0)];
             [aLayer setFrame:CGRectMake(0, -CGRectGetHeight(aLayer.frame), CGRectGetWidth(aLayer.frame), CGRectGetHeight(aLayer.frame))];
+//            [videoLayer addSublayer:fromLayer];
+            [videoLayer addSublayer:aLayer];
             [self addEnterTransitionForLayer:aLayer fromLayer:fromLayer WithType:_transitionType forAnimationAfterDelay:time];
             break;
             
@@ -353,6 +360,7 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
         case kTransitionTypeExitToRight:
         case kTransitionTypeExitToTop:
         case kTransitionTypeExitToBottom:
+            [videoLayer addSublayer:aLayer];
             [fromLayer setAnchorPoint:CGPointMake(0, 0)];
             fromLayer.frame = CGRectMake(0, 0, CGRectGetWidth(fromLayer.frame), CGRectGetHeight(fromLayer.frame));
             fromLayer.bounds = CGRectMake(0, 0, CGRectGetWidth(fromLayer.frame), CGRectGetHeight(fromLayer.frame));
@@ -365,6 +373,7 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
         case kTransitionTypeFlipFromRight:
         case kTransitionTypeFlipFromTop:
         case kTransitionTypeFlipFromBottom:
+            [videoLayer addSublayer:aLayer];
             [videoLayer addSublayer:fromLayer];
             [self addFlipAnimationFromLayer:aLayer fromLayer:fromLayer WithFlipType:_transitionType forAnimationAfterDelay:time];
             break;
@@ -396,7 +405,7 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
 }
 
 - (void)updateProgress {
-    NSLog(@"progress = %f",_assetExport.progress);
+    [APP_DELEGATE setLockScreenProgress:_assetExport.progress];
 }
 /**
  After Images has been converted to video, add transitions and save to destination path
@@ -404,14 +413,27 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
 -(void)addTransitionsOnVideoAnsSaveToPath:(NSString*)destinationPath {
     
     AVMutableComposition* mixComposition = [AVMutableComposition composition];
-
-    AVURLAsset* a_videoAsset = [[AVURLAsset alloc]initWithURL:[NSURL fileURLWithPath:TEMP_PATH] options:nil];
+    
+    AVURLAsset* a_videoAsset = [[AVURLAsset alloc] initWithURL:[NSURL fileURLWithPath:TEMP_PATH] options:nil];
     CMTimeRange a_timeRange = CMTimeRangeMake(kCMTimeZero,a_videoAsset.duration);
     AVMutableCompositionTrack *a_compositionVideoTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
     [a_compositionVideoTrack insertTimeRange:a_timeRange ofTrack:[[a_videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] atTime:a_timeRange.start error:nil];
     
     AVMutableVideoCompositionLayerInstruction * firstlayerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:[[a_videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0]];
     
+    if (_musicFilePath && [_musicFilePath length] > 5) {
+        NSURL* path = [[NSURL alloc] initFileURLWithPath:_musicFilePath];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:_musicFilePath]) {
+            AVURLAsset* audioAsset = [[AVURLAsset alloc] initWithURL:path options:nil];
+            
+            AVMutableCompositionTrack *compositionCommentaryTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio
+                                                                                                preferredTrackID:kCMPersistentTrackID_Invalid];
+            [compositionCommentaryTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, a_videoAsset.duration)
+                                                ofTrack:[[audioAsset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0]
+                                                 atTime:kCMTimeZero error:nil];
+        }
+    }
+
     
     AVMutableVideoCompositionInstruction * instruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
     instruction.timeRange = CMTimeRangeMake(kCMTimeZero, mixComposition.duration);
@@ -431,20 +453,18 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
     [self configureVideoForTransistions:_transitions forVideoComposition:videoComp];
 
     NSURL *outputFileUrl = [NSURL fileURLWithPath:destinationPath];
-    __block NSTimer* progressTracker = nil;
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND , 0l), ^{
-        progressTracker=[NSTimer scheduledTimerWithTimeInterval:0.1f target:self selector:@selector(updateProgress) userInfo:nil repeats:YES];
-    });
     
     _assetExport = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:EXPORT_QUALITY];
     _assetExport.videoComposition = videoComp;
     _assetExport.outputFileType = AVFileTypeMPEG4;
     _assetExport.outputURL = outputFileUrl;
-    [progressTracker fire];
     [_assetExport exportAsynchronouslyWithCompletionHandler:
      ^(void ) {
-         [progressTracker invalidate];
          [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:[NSNumber numberWithInt:_assetExport.status]];
+         if (_progressTracker && [_progressTracker isValid]) {
+             [_progressTracker invalidate];
+             _progressTracker = nil;
+         }
          switch (_assetExport.status)
          {
              case AVAssetExportSessionStatusFailed:
@@ -468,6 +488,7 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
              }
              case AVAssetExportSessionStatusExporting:
              {
+                 
                  NSLog(@"AVAssetExportSessionStatusExporting");
 //                 [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:@"Exporting"];
                  break;
@@ -597,7 +618,6 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
         for (UIImage *imgFrame in array)
         {
             if (adaptor.assetWriterInput.readyForMoreMediaData) {
-                NSLog(@"Not Error %d",i);
                 CMTime frameTime = CMTimeMake(_timePerImage, 1);
                 CMTime lastTime = CMTimeMake(_timePerImage*i, 1);
                 CMTime presentTime = CMTimeAdd(lastTime, frameTime);
@@ -635,8 +655,12 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
         
         //Finish the session:
         [writerInput markAsFinished];
+        _progressTracker=[NSTimer scheduledTimerWithTimeInterval:.1 target:self selector:@selector(updateProgress) userInfo:nil repeats:YES];
         [videoWriter finishWritingWithCompletionHandler:^{
             NSLog(@"Movie created successfully");
+//            __block NSTimer* progressTracker = nil;
+//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND , 0l), ^{
+//            });
             [self addTransitionsOnVideoAnsSaveToPath:path];
         }];
         

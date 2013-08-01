@@ -62,12 +62,14 @@
     for (WorkingImage* image in allImages) {
         [self resizeImageAtPath:image.imageUrl];
     }
+    [self makeVideo];
 }
 - (void)viewWillAppear:(BOOL)animated {
-    if (!videoAlreadyMade) {
-        [APP_DELEGATE showActivity:YES];
-        [self makeVideo];
-    }
+    [super viewWillAppear:animated];
+    WorkingImage* image = [_workSpace.images anyObject];
+    NSString* thumbPath = [[image.imageUrl stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"thumb.png"];
+    [self.videoThumbView setImage:[UIImage imageWithContentsOfFile:thumbPath]];
+    self.title = @"Preview";
 }
 - (void)resizeImageAtPath:(NSString*)path {
     UIImage* image = [UIImage imageWithContentsOfFile:path];
@@ -107,46 +109,6 @@
     NSData * binaryImageData = UIImagePNGRepresentation(newImage);
     [binaryImageData writeToFile:path atomically:YES];
 }
-- (void)makeThumbFromImageAtPath:(NSString*)path {
-    UIImage* image = [UIImage imageWithContentsOfFile:path];
-    float actualHeight = image.size.height;
-    float actualWidth = image.size.width;
-    float imgRatio = actualWidth/actualHeight;
-    float maxRatio = Video_Thumb_W/Video_Thumb_H;
-    CGSize videoSize = CGSizeMake(Video_Thumb_W, Video_Thumb_H);
-    float x=0, y=0;
-    
-    if(imgRatio!=maxRatio){
-        if(imgRatio < maxRatio){
-            imgRatio = Video_Thumb_H / actualHeight;
-            actualWidth = imgRatio * actualWidth;
-            actualHeight = Video_Thumb_H;
-            y = 0;
-            x = (Video_Thumb_W-actualWidth)/2.0f;
-        }
-        else{
-            imgRatio = Video_Thumb_W / actualWidth;
-            actualHeight = imgRatio * actualHeight;
-            actualWidth = Video_Thumb_W;
-            x = 0;
-            y = (Video_Thumb_H-actualHeight)/2.0f;
-        }
-    }
-    else {
-        actualWidth = Video_Thumb_W;
-        actualHeight = Video_Thumb_H;
-    }
-    CGRect rect = CGRectMake(x, y, actualWidth, actualHeight);
-    UIGraphicsBeginImageContext(videoSize);
-    [imageBase drawInRect:CGRectMake(0.0, 0.0, Video_Thumb_W, Video_Thumb_H)];
-    [image drawInRect:rect];
-    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    NSData * binaryImageData = UIImagePNGRepresentation(newImage);
-    NSString* thumbPath = [[path stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"thumb.png"];
-    [binaryImageData writeToFile:thumbPath atomically:YES];
-    [self.videoThumbView setImage:newImage];
-}
 -(void)videoConversionStarted:(NSNotification*)notification {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kNotificationVideoConversionStarted object:nil];
     NSLog(@"Started Processing Images...");
@@ -157,15 +119,16 @@
     NSNumber* number = [notification object];
     switch ([number intValue]) {
         case AVAssetExportSessionStatusCompleted: {
-            [APP_DELEGATE showActivity:NO];
             videoAlreadyMade = YES;
+            _workSpace.isAnyChange = [NSNumber numberWithInt:0];
         }break;
-            
-        default: {
-            //handel error
-        }break;
+        case AVAssetExportSessionStatusFailed:
+        case AVAssetExportSessionStatusCancelled:
+            [SCI showAlertWithMsg:@"Something went wrong\n Please go to previous screen and try again."];
+        default:
+        break;
     }
-    NSLog(@"Processing Finished with Status: %@",[notification object]);
+    [APP_DELEGATE showActivity:NO];
 }
 - (void)playMovie:(NSNotification *)notification {
     MPMoviePlayerController *player = notification.object;
@@ -206,6 +169,12 @@
 }
 
 - (void)makeVideo {
+    if (![_workSpace.isAnyChange integerValue])
+        return;
+    
+    [APP_DELEGATE showActivity:YES];
+    [APP_DELEGATE showLockScreenStatusWithMessage:@"Creating Video!"];
+
     [self getSelectedTransitons];
     int totalTransition = [selectedTransitions count];
     int counter=0;
@@ -213,8 +182,7 @@
     NSMutableArray *imageArr = [[NSMutableArray alloc] initWithCapacity:0];
     NSMutableArray *transitionArr = [[NSMutableArray alloc] initWithCapacity:0];
     NSArray* allImages = [_workSpace.images allObjects];
-    WorkingImage* image = [_workSpace.images anyObject];
-    [self makeThumbFromImageAtPath:image.imageUrl];
+
 
     
     NSSortDescriptor* desc = [[[NSSortDescriptor alloc] initWithKey:@"imageIndex" ascending:YES] autorelease];
@@ -237,6 +205,7 @@
         }
     }
     ImageToVideo *_imgToVdo = [[ImageToVideo alloc] init];
+    _imgToVdo.musicFilePath = _workSpace.trackUrl;
     [_imgToVdo setTransitions:[NSMutableArray arrayWithArray:transitionArr]];
     NSString* destinationPath = [[path stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"vido.mov"];
     [_imgToVdo writeImagesAsMovie:imageArr toPath:destinationPath];
@@ -305,7 +274,8 @@
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.row==3) {
-        [SCI showDevelopmentAlert];
+        [self.navigationController popViewControllerAnimated:YES];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"So UI to select track" object:nil];
     }
     else {
         videoAlreadyMade = NO;

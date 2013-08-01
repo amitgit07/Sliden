@@ -9,6 +9,7 @@
     <entity name="WorkSpace" representedClassName="WorkSpace" syncable="YES">
         <attribute name="dateCreated" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="dateModified" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="isAnyChange" optional="YES" attributeType="Integer 16" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="trackUrl" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="transitions" optional="YES" attributeType="String" syncable="YES"/>
@@ -16,7 +17,7 @@
         <relationship name="images" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="WorkingImage" inverseName="inWorkSpace" inverseEntity="WorkingImage" syncable="YES"/>
     </entity>
     <elements>
-        <element name="WorkingImage" positionX="-126" positionY="3" width="128" height="103"/>
-        <element name="WorkSpace" positionX="61" positionY="63" width="128" height="150"/>
+        <element name="WorkingImage" positionX="-225" positionY="50" width="128" height="103"/>
+        <element name="WorkSpace" positionX="61" positionY="63" width="128" height="163"/>
     </elements>
 </model>

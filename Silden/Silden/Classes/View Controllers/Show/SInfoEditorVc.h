@@ -14,9 +14,11 @@
 @property (retain, nonatomic) IBOutlet UITextField *titleTextField;
 @property (retain, nonatomic) IBOutlet UITextView *descriptionTextView;
 @property (nonatomic, strong) WorkSpace* workSpace;
+@property (retain, nonatomic) IBOutlet UIToolbar *toolBar;
 
 - (IBAction)selectTuneButtonTap:(UIButton *)sender;
 - (IBAction)keepSlidenButtonTap:(id)sender;
 - (IBAction)homeButtonTap:(UIButton *)sender;
+- (IBAction)toolBarDontButtonTap:(id)sender;
 
 @end

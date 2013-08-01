@@ -9,8 +9,8 @@
 #ifndef Numerologist_Constants_h
 #define Numerologist_Constants_h
 
-#define PARSE_APP_ID        @"T2acrIAMRs82Yo34diao6kUO2k13uZC9AEL4SJDX"
-#define PARSE_CLIENT_KEY    @"UffxdPT72nJrHGwFWk3znR21SxF8JOrpaK5IDmPd"
+#define PARSE_APP_ID        @"I1GYptTzgFU1Ku27JvgsdWCsXydQxZcAVWD55vNa"
+#define PARSE_CLIENT_KEY    @"12OfRUePZugcRdNju9CFwvbkam35lJN6chSz4BbQ"
 
 #define OVERLAY_VIEW_TAG        1111
 #define OVERLAY_VIEW_TAG_SLIDE  1112
@@ -43,5 +43,6 @@ extern NSString* const kKeyGender;
 extern NSString* const kKeyLocation;
 extern NSString* const kKeyRelationshipStatus;
 extern NSString* const kKeyFollowing;
+extern NSString* const kKeyFollowers;
 extern NSString* const kKeyProfilePic;
 extern NSString* const kKeyFollowingUsers;

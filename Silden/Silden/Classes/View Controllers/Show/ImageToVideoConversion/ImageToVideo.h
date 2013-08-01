@@ -47,8 +47,8 @@ typedef enum {
 @property(nonatomic,retain) NSMutableArray *allImages;
 @property(nonatomic,retain) NSMutableArray *transitions;
 @property(nonatomic) NSTimeInterval timePerImage;
-
-
+@property(nonatomic, retain) NSString* musicFilePath;
+@property(nonatomic, assign) NSTimer* progressTracker;
 - (void) writeImagesAsMovie:(NSArray *)array toPath:(NSString*)path;
 //-(void)writeImageAsMovie:(NSArray *)array toPath:(NSString*)path size:(CGSize)size duration:(int)duration;
 @end

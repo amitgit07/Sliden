@@ -10,6 +10,12 @@
 #import <Parse/Parse.h>
 #import "STabBarController.h"
 
+typedef enum {
+    WorkSpaceChangedInTransition        = 1 << 0,
+    WorkSpaceChangedInPhotosSelection   = 1 << 1,
+    WorkSpaceChangedInInfoEditor        = 1 << 2,
+    WorkSpaceChangedInSongsSelection    = 1 << 3,
+}WorkSpaceChangedIn;
 
 @interface SAppDelegate : UIResponder <UIApplicationDelegate, UITabBarControllerDelegate> {
     UIActivityIndicatorView* _activity;
@@ -28,6 +34,8 @@
 - (NSURL *)applicationDocumentsDirectory;
 
 - (void)showActivity:(BOOL)show;
+- (void)showLockScreenStatusWithMessage:(NSString*)msg;
+- (void)setLockScreenProgress:(float)value;
 - (void)setNavigationBarBackground:(BOOL)withAppName;
 @end
 

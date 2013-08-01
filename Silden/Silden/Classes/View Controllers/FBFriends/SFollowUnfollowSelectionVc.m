@@ -41,7 +41,6 @@
     [APP_DELEGATE showActivity:YES];
     [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
         if (objects) {
-            NSLog(@"Retrived %d",[objects count]);
             [APP_DELEGATE showActivity:NO];
             NSPredicate* predicate = [NSPredicate predicateWithFormat:@"self.user_id != %@",[[PFUser currentUser] valueForKey:kKeyUserId]];
             
@@ -127,12 +126,30 @@
             [_followingFriends removeObject:user];
             NSRange range = [_friendsIdCollection rangeOfString:[NSString stringWithFormat:@"%@,",[user valueForKey:kKeyUserId]]];
             [_friendsIdCollection deleteCharactersInRange:range];
+            NSString* followers = [user valueForKey:kKeyFollowers];
+            if (followers) {
+                NSRange range = [followers rangeOfString:[NSString stringWithFormat:@"%@,",[[PFUser currentUser] valueForKey:kKeyUserId]]];
+                if (range.location != NSNotFound) {
+                    followers = [followers stringByReplacingCharactersInRange:range withString:@""];
+                    [user setValue:followers forKey:kKeyFollowers];
+                    [user saveInBackground];
+                }
+            }
         }break;
         case FollowStatusNotFollowing:
         {
             PFUser* user = [_sildenUsers objectAtIndex:sender.tag];
             [_followingFriends addObject:user];
             [_friendsIdCollection appendFormat:@"%@,",[user valueForKey:kKeyUserId]];
+            NSString* followers = [user valueForKey:kKeyFollowers];
+            if (followers) {
+                NSRange range = [followers rangeOfString:[NSString stringWithFormat:@"%@,",[[PFUser currentUser] valueForKey:kKeyUserId]]];
+                if (range.location != NSNotFound) {
+                    followers = [followers stringByAppendingString:[NSString stringWithFormat:@"%@,",[[PFUser currentUser] valueForKey:kKeyUserId]]];
+                    [user setValue:followers forKey:kKeyFollowers];
+                    [user saveInBackground];
+                }
+            }
         }break;
         default:
             break;

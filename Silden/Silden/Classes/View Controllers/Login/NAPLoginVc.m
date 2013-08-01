@@ -74,8 +74,7 @@
 - (IBAction)loginButtonTap:(UIButton *)sender {
     NSString* error = [self checkForValidInput];
     if (error) {
-        [SCI showAlertWithMsg:error];
-        return;
+        [SCI showAlertWithMsg:[error description]];
     }
     if (![SCI isValidEmail:_emailTextField.text]) {
         [SCI showAlertWithMsg:@"Enter valid email!"];
@@ -94,7 +93,10 @@
                             }];
         } else {
             NSString *errorString = [[error userInfo] objectForKey:@"error"];
-            [SCI showAlertWithMsg:errorString];
+            if ([errorString length] > 80)
+                [SCI showAlertWithMsg:@"Something went wrong.\nPlease try again later."];
+            else
+                [SCI showAlertWithMsg:errorString];
         }
     }];
 }
