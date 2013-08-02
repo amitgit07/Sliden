@@ -12,6 +12,7 @@
 #import <Parse/Parse.h>
 #import "SInviteFriendsVc.h"
 #import "SFollowUnfollowSelectionVc.h"
+#define DevelopmentMode 1
 
 @interface NAPLandingVc ()
 - (void)saveDataOnCloud:(NSDictionary*)dict forUser:(PFUser*)user;
@@ -35,6 +36,15 @@
 }
 - (void)viewDidAppear:(BOOL)animated {
     self.title = @"Home";
+#ifdef DevelopmentMode
+        [UIView transitionFromView:self.navigationController.view
+                            toView:[[APP_DELEGATE tabBarController] view]
+                          duration:0.35f
+                           options:UIViewAnimationOptionTransitionFlipFromLeft
+                        completion:^(BOOL finished) {
+                            [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE tabBarController]];
+                        }];
+#else
     if ([[PFFacebookUtils session] isOpen]) {
         [UIView transitionFromView:self.navigationController.view
                             toView:[[APP_DELEGATE tabBarController] view]
@@ -44,6 +54,7 @@
                             [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE tabBarController]];
                         }];
     }
+#endif
 
 //    else {
 //        for (int i = 1; i < 97; i++) {
@@ -101,8 +112,6 @@
                                options:UIViewAnimationOptionTransitionFlipFromLeft
                             completion:^(BOOL finished) {
                                 [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE tabBarController]];
-//                                SFollowUnfollowSelectionVc* vc = [[[SFollowUnfollowSelectionVc alloc] initWithNibName:@"SFollowUnfollowSelectionVc" bundle:nil] autorelease];
-//                                [[APP_DELEGATE tabBarController] presentViewController:vc animated:YES completion:nil];
                             }];
 
         }
