@@ -12,7 +12,7 @@
 #import <Parse/Parse.h>
 #import "SInviteFriendsVc.h"
 #import "SFollowUnfollowSelectionVc.h"
-#define DevelopmentMode 1
+#define DevelopmentMode 0
 
 @interface NAPLandingVc ()
 - (void)saveDataOnCloud:(NSDictionary*)dict forUser:(PFUser*)user;
@@ -36,7 +36,7 @@
 }
 - (void)viewDidAppear:(BOOL)animated {
     self.title = @"Home";
-#ifdef DevelopmentMode
+#if DevelopmentMode
         [UIView transitionFromView:self.navigationController.view
                             toView:[[APP_DELEGATE tabBarController] view]
                           duration:0.35f

@@ -130,6 +130,7 @@
     switch (buttonIndex) {
         case 1: {
             if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+                [APP_DELEGATE setNavigationBarBackground:NO];
                 UIImagePickerController* imgPicker = [[UIImagePickerController alloc] init];
                 imgPicker.allowsEditing = NO;
                 imgPicker.delegate = self;
@@ -141,6 +142,7 @@
             }
         }break;
         case 2: {
+            [APP_DELEGATE setNavigationBarBackground:NO];
             UIImagePickerController* imgPicker = [[UIImagePickerController alloc] init];
             imgPicker.allowsEditing = NO;
             imgPicker.delegate = self;
@@ -336,12 +338,14 @@
 
 #pragma mark - IMage Picker Delegate
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    [APP_DELEGATE setNavigationBarBackground:YES];
     _profilePic = [[info objectForKey:@"UIImagePickerControllerOriginalImage"] retain];
     [self dismissViewControllerAnimated:YES completion:nil];
     [_profilePicButton setTitle:@"CHANGE PROFILE PHOTO" forState:UIControlStateNormal];
 //    [_profilePicButton.imageView setContentMode:UIViewContentModeScaleAspectFit];
 }
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+    [APP_DELEGATE setNavigationBarBackground:YES];
     _profilePic = nil;
     [self dismissViewControllerAnimated:YES completion:nil];
 }
