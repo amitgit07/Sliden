@@ -106,7 +106,11 @@
     self.tabBarController = [[[STabBarController alloc] init] autorelease];
     self.tabBarController.viewControllers = @[navC1,navC2,navC3,navC4,navC5];
     [self.tabBarController addCenterButtonWithImage:Image(@"movie_icon.png") highlightImage:Image(@"movie_icon_selected.png")];
-    
+    [[UITabBarItem appearance] setTitleTextAttributes:@{ UITextAttributeTextColor : [UIColor colorWithWhite:0.2f alpha:0.9f] }
+                                             forState:UIControlStateNormal];
+    [[UITabBarItem appearance] setTitleTextAttributes:@{ UITextAttributeTextColor : [UIColor whiteColor] }
+                                             forState:UIControlStateHighlighted];
+
     UIImage *buttonImage = [UIImage imageNamed:@"tabItemOff.png"];
     UIImage *highlightImage = [UIImage imageNamed:@"tabItemSelected.png"];
     UIButton* button = [UIButton buttonWithType:UIButtonTypeCustom];
