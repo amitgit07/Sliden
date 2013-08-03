@@ -293,7 +293,7 @@
     
     [self.scrollView bringSubviewToFront:thumb];
     [thumb appearDraggable];
-    [self startTilesWiggling];
+    //[self startTilesWiggling];
     
     _workSpace.isAnyChange = [NSNumber numberWithInt:([_workSpace.isAnyChange integerValue] | WorkSpaceChangedInPhotosSelection)];
 }
@@ -373,7 +373,7 @@
         heldTile.frame = [(NSValue*)tileFrame[heldFrameIndex] CGRectValue];
         heldTile.thumbIndex = heldFrameIndex;
         heldTile = nil;
-        [self stopTilesWiggling];
+        //[self stopTilesWiggling];
     }
 }
 - (void)startTilesWiggling {

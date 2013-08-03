@@ -100,7 +100,7 @@
 
 - (void)appearDraggable {
     self.layer.opacity = 0.6f;
-    [self.layer setValue:[NSNumber numberWithFloat:1.25f] forKeyPath:@"transform.scale"];
+    [self.layer setValue:[NSNumber numberWithFloat:1.15f] forKeyPath:@"transform.scale"];
 }
 
 
