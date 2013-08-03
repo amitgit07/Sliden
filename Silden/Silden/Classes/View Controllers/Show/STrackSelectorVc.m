@@ -149,6 +149,8 @@
             [cell.selectButton setSelected:NO];
         }
         [sender setSelected:YES];
+        UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:@"Sliden" message:@"Track selected successfully." delegate:self cancelButtonTitle:@"OK" otherButtonTitles:@"Choose Other", nil] autorelease];
+        [alert show];
     }
     else {
         //download file
@@ -164,6 +166,8 @@
             }
             [sender setSelected:YES];
             [APP_DELEGATE showActivity:NO];
+            UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:@"Sliden" message:@"Track selected successfully." delegate:self cancelButtonTitle:@"OK" otherButtonTitles:@"Choose Other", nil] autorelease];
+            [alert show];
         } progressBlock:^(int percentDone) {
             [APP_DELEGATE setLockScreenProgress:percentDone/100.0f];
         }];
@@ -266,4 +270,11 @@
 //        }
 //    }];
 //}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if ([alertView cancelButtonIndex]==buttonIndex) {
+        int count = [[self.navigationController viewControllers] count];
+        [self.navigationController popToViewController:[[self.navigationController viewControllers] objectAtIndex:count-3] animated:YES];
+    }
+}
 @end
