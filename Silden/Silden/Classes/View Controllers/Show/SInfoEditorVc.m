@@ -84,25 +84,13 @@
     }];
 }
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
-    return YES;
-    if ([textField.text length]>3) {
+    if ([textField.text length]) {
         [_descriptionTextView becomeFirstResponder];
-        return YES;
     }
-    else {
-        [SCI showAlertWithMsg:@"Title for video is required."];
-        return NO;
-    }
+    return YES;
 }
 - (BOOL)textViewShouldEndEditing:(UITextView *)textView {
     return YES;
-    if ([textView.text length]>5) {
-        return YES;
-    }
-    else {
-        [SCI showAlertWithMsg:@"Desciption for video is required."];
-        return NO;
-    }
 }
 - (void)textViewDidChange:(UITextView *)textView {
     _workSpace.videoDescription = textView.text;
@@ -150,10 +138,10 @@
         [self.navigationController pushViewController:newObj animated:YES];
         self.title=@"Back";
     }
-    else if ([_titleTextField.text length] < 4) {
+    else if ([title length] < 1) {
         [SCI showAlertWithMsg:@"Title can not be blank."];
     }
-    else if ([_descriptionTextView.text length] < 6) {
+    else if ([videoDescription length] < 1) {
         [SCI showAlertWithMsg:@"Desciption can not be blank."];
     }
 }
