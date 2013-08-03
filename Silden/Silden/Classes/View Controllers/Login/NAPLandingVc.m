@@ -12,7 +12,7 @@
 #import <Parse/Parse.h>
 #import "SInviteFriendsVc.h"
 #import "SFollowUnfollowSelectionVc.h"
-#define DevelopmentMode 0
+#define DevelopmentMode 1
 
 @interface NAPLandingVc ()
 - (void)saveDataOnCloud:(NSDictionary*)dict forUser:(PFUser*)user;

@@ -11,7 +11,7 @@
 #import "WorkSpace.h"
 
 
-@interface STrackSelectorVc : UIViewController <AVAudioPlayerDelegate> {
+@interface STrackSelectorVc : SGrayViewController <AVAudioPlayerDelegate, UITableViewDataSource, UITableViewDelegate> {
     AVAudioPlayer *audioPlayer;
 }
 @property(nonatomic, retain) NSString* selectedCategory;

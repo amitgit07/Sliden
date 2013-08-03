@@ -33,6 +33,7 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
+    [_tableView setSeparatorColor:[UIColor colorWithPatternImage:Image(@"category_line.png")]];
 }
 
 - (void)didReceiveMemoryWarning
@@ -79,12 +80,7 @@
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-//    [tableView deselectRowAtIndexPath:indexPath animated:YES];
-//    SPhotoSelectorVc* newObj = [[[SPhotoSelectorVc alloc] initWithNibName:@"SPhotoSelectorVc" bundle:nil] autorelease];
-//    newObj.workSpace = [self.fetchedResultsController objectAtIndexPath:indexPath];
-//    [self.navigationController pushViewController:newObj animated:YES];
-//
-
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
     _workSpace = [self.fetchedResultsController objectAtIndexPath:indexPath];
     STransitonSelectorVc* newObj = [[[STransitonSelectorVc alloc] initWithNibName:@"STransitonSelectorVc" bundle:nil] autorelease];
     newObj.workSpace = _workSpace;

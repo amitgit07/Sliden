@@ -42,5 +42,10 @@
     }
     return self;
 }
-
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    [_showTitleLabel setFrame:CGRectMake(15, self.contentView.frame.size.height/2-9.0f, 165, 18)];
+    [_lastModifiedTimeLabel setFrame:CGRectMake(250, self.contentView.frame.size.height/2-9.0f, 165, 18)];
+    [_lastModifiedDateLabel setFrame:CGRectMake(185, self.contentView.frame.size.height/2-9.0f, 165, 18)];
+}
 @end

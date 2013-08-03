@@ -9,7 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "WorkSpace.h"
 
-@interface SCategorySelectorVc : SGrayViewController
+@interface SCategorySelectorVc : SGrayViewController <UITableViewDataSource, UITableViewDelegate> {
+    
+}
 
 @property (retain, nonatomic) IBOutlet UITableView *tableView;
 @property (nonatomic, assign) WorkSpace* workSpace;

@@ -26,9 +26,6 @@
     if (self) {
         // Custom initialization
         _categories = [[NSMutableArray alloc] initWithCapacity:0];
-//        for (int i=0; i< 10; i++) {
-//            [_categories addObject:[NSString stringWithFormat:@"Category #%d",i+1]];
-//        }
     }
     return self;
 }
@@ -36,9 +33,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self.navigationItem.leftBarButtonItem setTitle:@"Back"];
-    // Do any additional setup after loading the view from its nib.
+//    [self.navigationItem.leftBarButtonItem setTitle:@"Back"];
     [APP_DELEGATE showActivity:YES];
+    [_tableView setSeparatorColor:[UIColor colorWithPatternImage:Image(@"category_line.png")]];
     PFQuery* musicCat = [PFQuery queryWithClassName:@"MusicCat"];
     [musicCat findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
         _allSongsInfo =[objects retain];
@@ -52,7 +49,9 @@
     }];
 }
 - (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
     self.title = @"Categories";
+    
 }
 - (void)didReceiveMemoryWarning
 {

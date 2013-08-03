@@ -35,6 +35,7 @@
     
 }
 - (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
     [_bg setFrame:self.view.bounds];
     [self.view sendSubviewToBack:_bg];
 }
