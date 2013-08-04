@@ -51,7 +51,15 @@
     _mainButton.tag = 10;
     
     [_profilePicButton setHidden:YES];
-    
+    Reachability *reachability = [Reachability reachabilityWithHostname:@"www.google.com"];
+    reachability.reachableBlock = ^(Reachability *reachability) {
+        NSLog(@"Network is reachable.");
+        [APP_DELEGATE showActivity:NO];
+    };
+    reachability.unreachableBlock = ^(Reachability *reachability) {
+        [APP_DELEGATE showActivity:YES];
+        [APP_DELEGATE showLockScreenStatusWithMessage:@"Your internet connection appears to be offline."];
+    };
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];

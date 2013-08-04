@@ -158,6 +158,7 @@
 		20AA32CF176E010C001207AC /* iCarousel.m in Sources */ = {isa = PBXBuildFile; fileRef = 20AA32CE176E010C001207AC /* iCarousel.m */; };
 		20AA32D2176E029F001207AC /* video_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 20AA32D0176E029F001207AC /* video_bg.png */; };
 		20AA32D3176E029F001207AC /* video_bg@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 20AA32D1176E029F001207AC /* video_bg@2x.png */; };
+		20B604ED17AE408B004A4383 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 20B604EC17AE408B004A4383 /* Reachability.m */; };
 		20BC772C17A417E5008622D4 /* SCategorySelectorVc.m in Sources */ = {isa = PBXBuildFile; fileRef = 20BC772A17A417E4008622D4 /* SCategorySelectorVc.m */; };
 		20BC772D17A417E5008622D4 /* SCategorySelectorVc.xib in Resources */ = {isa = PBXBuildFile; fileRef = 20BC772B17A417E5008622D4 /* SCategorySelectorVc.xib */; };
 		20BC773117A41802008622D4 /* STrackSelectorVc.m in Sources */ = {isa = PBXBuildFile; fileRef = 20BC772F17A41801008622D4 /* STrackSelectorVc.m */; };
@@ -422,6 +423,8 @@
 		20AA32CE176E010C001207AC /* iCarousel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iCarousel.m; sourceTree = "<group>"; };
 		20AA32D0176E029F001207AC /* video_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = video_bg.png; sourceTree = "<group>"; };
 		20AA32D1176E029F001207AC /* video_bg@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "video_bg@2x.png"; sourceTree = "<group>"; };
+		20B604EB17AE408B004A4383 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		20B604EC17AE408B004A4383 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		20BC772917A417E4008622D4 /* SCategorySelectorVc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCategorySelectorVc.h; sourceTree = "<group>"; };
 		20BC772A17A417E4008622D4 /* SCategorySelectorVc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCategorySelectorVc.m; sourceTree = "<group>"; };
 		20BC772B17A417E5008622D4 /* SCategorySelectorVc.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SCategorySelectorVc.xib; sourceTree = "<group>"; };
@@ -983,6 +986,8 @@
 				20C6D0991772BB0400C36B6E /* ELCImagePicker */,
 				20AA32CC176E010C001207AC /* iCarousel */,
 				2054C36E1743DFAE0010E2A8 /* Images */,
+				20B604EB17AE408B004A4383 /* Reachability.h */,
+				20B604EC17AE408B004A4383 /* Reachability.m */,
 				20FB26ED173C444A00AE242F /* UIThumbView.h */,
 				20FB26EC173C444A00AE242F /* UIThumbView.m */,
 				20D5E098172CB9C5008B5F73 /* Constants.h */,
@@ -1377,6 +1382,7 @@
 				20BC773517A448F5008622D4 /* SDefaultSlidenCells.m in Sources */,
 				20BC781D17A9751D008622D4 /* WorkSpace.m in Sources */,
 				20BC782017A9751D008622D4 /* WorkingImage.m in Sources */,
+				20B604ED17AE408B004A4383 /* Reachability.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

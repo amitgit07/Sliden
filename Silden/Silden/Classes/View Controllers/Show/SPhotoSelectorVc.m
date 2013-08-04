@@ -403,6 +403,9 @@
 }
 - (void)didTapToEditDragbleThumb:(DragbleThumb*)thumb {
     //NSLog(@"%s",__FUNCTION__);
+    if (thumb.isDraggingEnabled) {
+        return;
+    }
     _beingEditedImage = thumb;
     UIImage* image = [UIImage imageWithContentsOfFile:thumb.workingImage.imageUrl];
     [self launchPhotoEditorWithImage:image highResolutionImage:nil];

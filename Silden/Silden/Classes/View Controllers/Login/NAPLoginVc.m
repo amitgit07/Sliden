@@ -39,6 +39,17 @@
     // Dispose of any resources that can be recreated.
 }
 - (void)viewDidAppear:(BOOL)animated {
+    Reachability *reachability = [Reachability reachabilityWithHostname:@"www.google.com"];
+    reachability.reachableBlock = ^(Reachability *reachability) {
+        NSLog(@"Network is reachable.");
+        [APP_DELEGATE showActivity:NO];
+    };
+    reachability.unreachableBlock = ^(Reachability *reachability) {
+        [APP_DELEGATE showActivity:YES];
+        [APP_DELEGATE showLockScreenStatusWithMessage:@"Your internet connection appears to be offline."];
+    };
+    // Start Monitoring
+    [reachability startNotifier];
 }
 - (void)dealloc {
     [_emailTextField release];
@@ -92,11 +103,13 @@
                                 [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE tabBarController]];
                             }];
         } else {
-            NSString *errorString = [[error userInfo] objectForKey:@"error"];
-            if ([errorString length] > 80)
-                [SCI showAlertWithMsg:@"Something went wrong.\nPlease try again later."];
-            else
+            if ([error code]==-1009) {
+                 [SCI showAlertWithMsg:@"The Internet connection appears to be offline."];
+            }
+            else {
+                NSString* errorString = [[error userInfo] objectForKey:@"error"];
                 [SCI showAlertWithMsg:errorString];
+            }
         }
     }];
 }

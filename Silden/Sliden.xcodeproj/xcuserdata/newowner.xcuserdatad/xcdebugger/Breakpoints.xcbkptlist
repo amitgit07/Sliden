@@ -8,11 +8,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Silden/Classes/App Delegate/SAppDelegate.m"
-         timestampString = "396989827.651213"
+         timestampString = "397296396.776667"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "249"
-         endingLineNumber = "249"
+         startingLineNumber = "253"
+         endingLineNumber = "253"
          landmarkName = "-showActivity:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -21,11 +21,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Silden/Classes/App Delegate/SAppDelegate.m"
-         timestampString = "396979096.670347"
+         timestampString = "397296396.776667"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "218"
-         endingLineNumber = "218"
+         startingLineNumber = "222"
+         endingLineNumber = "222"
          landmarkName = "-showLockScreenStatusWithMessage:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -42,5 +42,27 @@
          landmarkName = "-tableView:didSelectRowAtIndexPath:"
          landmarkType = "5">
       </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "Silden/Classes/View Controllers/Show/ImageToVideoConversion/ImageToVideo.m"
+         timestampString = "397278061.701969"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "442"
+         endingLineNumber = "442"
+         landmarkName = "-addTransitionsOnVideoAnsSaveToPath:"
+         landmarkType = "5">
+      </FileBreakpoint>
    </FileBreakpoints>
+   <ExceptionBreakpoints>
+      <ExceptionBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         scope = "0"
+         stopOnStyle = "0">
+      </ExceptionBreakpoint>
+   </ExceptionBreakpoints>
 </Bucket>
