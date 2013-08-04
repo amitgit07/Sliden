@@ -205,7 +205,7 @@
 
     NSFileManager* fileManager = [NSFileManager defaultManager];
     DLog(@"2.5");
-    NSString* folderPath = [DOC_DIR stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",[NSDate date]]];
+    NSString* folderPath = [CACHE_DIR stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",[NSDate date]]];
     DLog(@"3");
     if ([fileManager createDirectoryAtPath:folderPath withIntermediateDirectories:NO attributes:nil error:&error]) {
         DLog(@"3.5");

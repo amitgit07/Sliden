@@ -237,7 +237,7 @@
         WorkingImage* lastThumb = [allImages lastObject];
         lastIndex = [lastThumb.imageIndex intValue]+1;
     }
-    NSString* workingFolder = DOC_DIR;
+    NSString* workingFolder = CACHE_DIR;
     workingFolder = [workingFolder stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",_workSpace.dateCreated]];
     NSString* filePath = nil;
     BOOL makeThumbToo = YES;

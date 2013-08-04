@@ -55,7 +55,7 @@ static SharedUtility* instance;
     [alert show];
 }
 - (void)showAlertWithMsg:(NSString*)msg {
-    UIAlertView* alert = [[[UIAlertView alloc] initWithTitle:@"Sliden" message:msg delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil] autorelease];
+    UIAlertView* alert = [[[UIAlertView alloc] initWithTitle:@"Sliden" message:msg delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] autorelease];
     [alert show];
 }
 

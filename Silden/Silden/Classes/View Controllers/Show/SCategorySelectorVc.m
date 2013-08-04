@@ -47,6 +47,7 @@
         [_tableView reloadData];
         [APP_DELEGATE showActivity:NO];
     }];
+//    [self saveNewCategoryWithName:@"SmallFiles"];
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
@@ -98,6 +99,33 @@
     newObj.allSongs = _allSongsInfo;
     newObj.selectedCategory = [_categories objectAtIndex:indexPath.row];
     [self.navigationController pushViewController:newObj animated:YES];
+    
+//    [self saveNewCategoryWithName:@"SmallFiles"];
 }
-
+- (void)saveNewCategoryWithName:(NSString*)name {
+    PFObject* newSong = [PFObject objectWithClassName:@"MusicCat"];
+    [newSong setValue:name forKey:@"cat_name"];
+    
+    NSString* trackName = @"15sec.mp3";
+    NSData* data = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:[trackName stringByDeletingPathExtension] ofType:@"mp3"]];
+    PFFile* file = [PFFile fileWithName:trackName data:data];
+    [file saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+        if (succeeded) {
+            NSLog(@"Done saving file for %@",trackName);
+        }
+        else {
+            NSLog(@"Error saving file for %@",error);
+        }
+    }];
+    [newSong setValue:trackName forKey:@"track_name"];
+    [newSong setValue:file forKey:@"music_file"];
+    [newSong saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+        if (succeeded) {
+            NSLog(@"Done saving metadata for %@",trackName);
+        }
+        else {
+            NSLog(@"Error saving metadata for %@",error);
+        }
+    }];
+}
 @end

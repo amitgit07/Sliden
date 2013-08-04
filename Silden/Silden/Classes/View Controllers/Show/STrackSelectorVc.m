@@ -96,6 +96,28 @@
     for (PFObject* obj in _allSongs) {
         if ([[obj objectForKey:@"cat_name"] isEqualToString:_selectedCategory]) {
             [_tracks addObject:obj];
+            
+//            NSString* trackName = @"10SecFile";
+//            NSData* data = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:[trackName stringByDeletingPathExtension] ofType:@"mp3"]];
+//            PFFile* file = [PFFile fileWithName:trackName data:data];
+//            [file saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+//                if (succeeded) {
+//                    NSLog(@"Done saving file for %@",trackName);
+//                }
+//                else {
+//                    NSLog(@"Error saving file for %@",error);
+//                }
+//            }];
+//            [obj setValue:trackName forKey:@"track_name"];
+//            [obj setValue:file forKey:@"music_file"];
+//            [obj saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+//                if (succeeded) {
+//                    NSLog(@"Done saving metadata for %@",trackName);
+//                }
+//                else {
+//                    NSLog(@"Error saving metadata for %@",error);
+//                }
+//            }];
         }
     }
     [_tableView reloadData];

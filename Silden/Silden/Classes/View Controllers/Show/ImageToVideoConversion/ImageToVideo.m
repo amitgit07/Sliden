@@ -30,8 +30,7 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
 #define BufferTime 0.5
 
 #define DOCUMENT_DIR [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]
-#define TEMP_PATH [DOCUMENT_DIR stringByAppendingPathComponent:@"temp.mov"]
-#define MUSIC_PATH [DOCUMENT_DIR stringByAppendingPathComponent:@"music.mp3"]
+#define TEMP_PATH [CACHE_DIR stringByAppendingPathComponent:@"temp.mov"]
 
 
 @implementation ImageToVideo {
@@ -417,22 +416,49 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
     AVURLAsset* a_videoAsset = [[AVURLAsset alloc] initWithURL:[NSURL fileURLWithPath:TEMP_PATH] options:nil];
     CMTimeRange a_timeRange = CMTimeRangeMake(kCMTimeZero,a_videoAsset.duration);
     AVMutableCompositionTrack *a_compositionVideoTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
-    [a_compositionVideoTrack insertTimeRange:a_timeRange ofTrack:[[a_videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] atTime:a_timeRange.start error:nil];
+    NSArray* v_tracks = [a_videoAsset tracksWithMediaType:AVMediaTypeVideo];
+
+    [a_compositionVideoTrack insertTimeRange:a_timeRange ofTrack:([v_tracks count]>0)?[v_tracks objectAtIndex:0]:nil atTime:a_timeRange.start error:nil];
     
-    AVMutableVideoCompositionLayerInstruction * firstlayerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:[[a_videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0]];
-    
+
     if (_musicFilePath && [_musicFilePath length] > 5) {
-        NSURL* path = [[NSURL alloc] initFileURLWithPath:_musicFilePath];
+        NSURL* path = [NSURL fileURLWithPath:_musicFilePath];
         if ([[NSFileManager defaultManager] fileExistsAtPath:_musicFilePath]) {
             AVURLAsset* audioAsset = [[AVURLAsset alloc] initWithURL:path options:nil];
             
             AVMutableCompositionTrack *compositionCommentaryTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio
                                                                                                 preferredTrackID:kCMPersistentTrackID_Invalid];
-            [compositionCommentaryTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, a_videoAsset.duration)
-                                                ofTrack:[[audioAsset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0]
+            NSArray* a_tracks = [audioAsset tracksWithMediaType:AVMediaTypeAudio];
+            [compositionCommentaryTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, audioAsset.duration)
+                                                ofTrack:([a_tracks count]>0)?[a_tracks objectAtIndex:0]:nil
                                                  atTime:kCMTimeZero error:nil];
+            
+            float videoTime_s = CMTimeGetSeconds(a_videoAsset.duration);
+            float audioTime_s = CMTimeGetSeconds(audioAsset.duration);
+            if(videoTime_s > audioTime_s)
+            {
+                int numberOfLoop = ceil(videoTime_s/audioTime_s);
+                for (int i = 1; i < numberOfLoop; i++) {
+                    CMTime duration = CMTimeMakeWithSeconds(i*audioTime_s, audioAsset.duration.timescale);
+                    if (CMTIME_IS_VALID(duration))
+                    {
+                        
+                        CMTimeRange video_timeRange2 = CMTimeRangeMake(kCMTimeZero, audioAsset.duration);
+                        //start from where left
+                        CMTime nextClipStartTime2 = CMTimeMake(audioTime_s*i, audioAsset.duration.timescale);
+                        //add in AVMutableCompositionTrack
+                        [compositionCommentaryTrack insertTimeRange:video_timeRange2
+                                                         ofTrack:([a_tracks count]>0)?[a_tracks objectAtIndex:0]:nil
+                                                          atTime:nextClipStartTime2 error:nil];
+                    }
+                    else
+                        NSLog(@"time is invalid");
+                }
+            }
+                //new time range
         }
     }
+    AVMutableVideoCompositionLayerInstruction * firstlayerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:([v_tracks count]>0)?[v_tracks objectAtIndex:0]:nil];
 
     
     AVMutableVideoCompositionInstruction * instruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
@@ -458,6 +484,7 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
     _assetExport.videoComposition = videoComp;
     _assetExport.outputFileType = AVFileTypeMPEG4;
     _assetExport.outputURL = outputFileUrl;
+    _assetExport.shouldOptimizeForNetworkUse = YES;
     [_assetExport exportAsynchronouslyWithCompletionHandler:
      ^(void ) {
          [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionFinished object:[NSNumber numberWithInt:_assetExport.status]];
@@ -621,16 +648,7 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
                 CMTime frameTime = CMTimeMake(_timePerImage, 1);
                 CMTime lastTime = CMTimeMake(_timePerImage*i, 1);
                 CMTime presentTime = CMTimeAdd(lastTime, frameTime);
-                
-                
-                // INSERT IMAGE FOR preview
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        //UIImage *newImg = [UIImage imageWithContentsOfFile:filePath];
-                        //[imgscreen setImage:newImg];
-                    });
-                });
-                
+                                
                 buffer = [self pixelBufferFromCGImage:[imgFrame CGImage] size:videoDimension];
                 BOOL result = [adaptor appendPixelBuffer:buffer withPresentationTime:presentTime];
                 
@@ -658,9 +676,6 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
         _progressTracker=[NSTimer scheduledTimerWithTimeInterval:.1 target:self selector:@selector(updateProgress) userInfo:nil repeats:YES];
         [videoWriter finishWritingWithCompletionHandler:^{
             NSLog(@"Movie created successfully");
-//            __block NSTimer* progressTracker = nil;
-//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND , 0l), ^{
-//            });
             [self addTransitionsOnVideoAnsSaveToPath:path];
         }];
         

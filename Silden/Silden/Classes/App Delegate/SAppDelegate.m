@@ -109,7 +109,7 @@
     [[UITabBarItem appearance] setTitleTextAttributes:@{ UITextAttributeTextColor : [UIColor colorWithWhite:0.2f alpha:0.9f] }
                                              forState:UIControlStateNormal];
     [[UITabBarItem appearance] setTitleTextAttributes:@{ UITextAttributeTextColor : [UIColor whiteColor] }
-                                             forState:UIControlStateHighlighted];
+                                             forState:UIControlStateSelected];
 
     UIImage *buttonImage = [UIImage imageNamed:@"tabItemOff.png"];
     UIImage *highlightImage = [UIImage imageNamed:@"tabItemSelected.png"];

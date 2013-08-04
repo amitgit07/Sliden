@@ -27,7 +27,7 @@ static NSMutableSet* allActiveRequsetUrl;
 static NSMutableDictionary *allActiveRequestURLAndObjects;
 
 + (void)clearBuffer {
-	NSString* docDirectory = [DOC_DIR stringByAppendingPathComponent:BaseBufferFolder];
+	NSString* docDirectory = [CACHE_DIR stringByAppendingPathComponent:BaseBufferFolder];
 	NSFileManager* fm = [NSFileManager defaultManager];
 	if ([fm fileExistsAtPath:docDirectory])
 	{
@@ -35,7 +35,7 @@ static NSMutableDictionary *allActiveRequestURLAndObjects;
 	}
 }
 + (void)clearBufferOfImageType:(NSString*)type {
-	NSString* docDirectory = [DOC_DIR stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@",BaseBufferFolder,type]];
+	NSString* docDirectory = [CACHE_DIR stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@",BaseBufferFolder,type]];
 	NSFileManager* fm = [NSFileManager defaultManager];
 	if ([fm fileExistsAtPath:docDirectory])
 	{
@@ -72,7 +72,7 @@ static NSMutableDictionary *allActiveRequestURLAndObjects;
         
         NSFileManager* fm = [NSFileManager defaultManager];
         NSString* thumbDocPath;
-        thumbDocPath = [DOC_DIR stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@",BaseBufferFolder,NoTypeFolder]];
+        thumbDocPath = [CACHE_DIR stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@",BaseBufferFolder,NoTypeFolder]];
         if (![[NSFileManager defaultManager] fileExistsAtPath:thumbDocPath]) 
         {
             NSError* err = nil;
@@ -103,7 +103,7 @@ static NSMutableDictionary *allActiveRequestURLAndObjects;
     }
     NSFileManager* fm = [NSFileManager defaultManager];
 	NSString* thumbDocPath;
-	thumbDocPath = [DOC_DIR stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@",BaseBufferFolder,imageTyp]];
+	thumbDocPath = [CACHE_DIR stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@",BaseBufferFolder,imageTyp]];
 	if (![[NSFileManager defaultManager] fileExistsAtPath:thumbDocPath]) 
 	{
 		NSError* err = nil;
@@ -123,7 +123,7 @@ static NSMutableDictionary *allActiveRequestURLAndObjects;
         }
         
         NSFileManager* fm = [NSFileManager defaultManager];
-        NSString* localPath = [NSString stringWithFormat:@"%@/%@/%@/%@",DOC_DIR,BaseBufferFolder,
+        NSString* localPath = [NSString stringWithFormat:@"%@/%@/%@/%@",CACHE_DIR,BaseBufferFolder,
                                (([self.imageType length])?self.imageType:NoTypeFolder),
                                finalPath];
         if ([fm fileExistsAtPath:localPath]) {
@@ -171,7 +171,7 @@ static NSMutableDictionary *allActiveRequestURLAndObjects;
     }
 
     NSFileManager* fm = [NSFileManager defaultManager];
-    NSString* localPath = [NSString stringWithFormat:@"%@/%@/%@/%@",DOC_DIR,BaseBufferFolder,
+    NSString* localPath = [NSString stringWithFormat:@"%@/%@/%@/%@",CACHE_DIR,BaseBufferFolder,
                            (([self.imageType length])?self.imageType:NoTypeFolder),
                            finalPath];
     self.imageUrlString = imageUrlStr;
@@ -238,7 +238,7 @@ static NSMutableDictionary *allActiveRequestURLAndObjects;
 - (void)setImageForUser:(PFUser*)user {
     NSString* imageUrlStr = [NSString stringWithFormat:@"%@.jpg",[user objectForKey:kKeyUserId]];
     NSFileManager* fm = [NSFileManager defaultManager];
-    NSString* localPath = [NSString stringWithFormat:@"%@/%@/%@/%@",DOC_DIR,BaseBufferFolder,
+    NSString* localPath = [NSString stringWithFormat:@"%@/%@/%@/%@",CACHE_DIR,BaseBufferFolder,
                            (([self.imageType length])?self.imageType:NoTypeFolder),
                            [imageUrlStr lastPathComponent]];
     self.imageUrlString = imageUrlStr;
