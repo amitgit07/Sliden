@@ -29,7 +29,9 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
 }
-
+- (void)viewWillAppear:(BOOL)animated {
+    [APP_DELEGATE setNavigationBarBackground:YES];
+}
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];

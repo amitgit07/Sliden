@@ -96,7 +96,31 @@
     NSString* thumbPath = [[path stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"thumb.png"];
     [binaryImageData writeToFile:thumbPath atomically:YES];
 }
-
+- (WorkingImage*)databaseObjectForImage:(WorkingImage*)image {
+    NSArray* images = [self.workSpace.images allObjects];
+    NSPredicate* predicate = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
+        WorkingImage* obj = (WorkingImage*)evaluatedObject;
+        if ([obj.imageUrl isEqualToString:image.imageUrl]) {
+            return YES;
+        }
+        return NO;
+    }];
+    NSArray* result = [images filteredArrayUsingPredicate:predicate];
+    return [result lastObject];
+}
+- (void)saveStateForImage:(WorkingImage*)image {
+    NSArray* images = [self.workSpace.images allObjects];
+    NSPredicate* predicate = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
+        WorkingImage* obj = (WorkingImage*)evaluatedObject;
+        if ([obj.imageUrl isEqualToString:image.imageUrl]) {
+            return YES;
+        }
+        return NO;
+    }];
+    NSArray* result = [images filteredArrayUsingPredicate:predicate];
+    WorkingImage* newObj = [result lastObject];
+    newObj.imageIndex = image.imageIndex;
+}
 - (void)addImagesInScrollViewFromPreviousSavedState {
     //NSLog(@"%s",__FUNCTION__);
 	currentX = 8;
@@ -105,11 +129,13 @@
         tileFrame = [[NSMutableArray alloc] init];
     }
     [[_scrollView subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [allThumbs removeAllObjects];
+    [tileFrame removeAllObjects];
+//    dispatch_async(dispatch_get_main_queue(), ^{
         for(WorkingImage *image in allImages) {
             CGRect frame = CGRectMake(currentX, currentY, 70, 70);
             DragbleThumb* view = [[DragbleThumb alloc] initWithFrame:frame];
-            view.workingImage = image;
+            view.workingImage = [self databaseObjectForImage:image];
             [tileFrame addObject:[NSValue valueWithCGRect:frame]];
             [view.imageThumb setImage:[UIImage imageWithContentsOfFile:image.imageUrl]];
             [view setThumbIndex:[image.imageIndex integerValue]];
@@ -124,7 +150,7 @@
             }
         }
         [_scrollView setContentSize:CGSizeMake(320, (currentX==8)?currentY:(currentY+78))];
-    });
+//    });
 }
 
 #pragma mark - Instance methods
@@ -152,6 +178,12 @@
 - (IBAction)rearrangeButtonTap:(UIButton *)sender {
     //NSLog(@"%s",__FUNCTION__);
     if ([sender.titleLabel.text isEqualToString:@"Re-arrange"]) {
+        NSArray* images = [self.workSpace.images allObjects];
+        cRelease(allImages);
+        NSSortDescriptor* descriptior = [[NSSortDescriptor alloc] initWithKey:@"imageIndex" ascending:YES];
+        allImages = [[NSMutableArray arrayWithArray:[images sortedArrayUsingDescriptors:[NSArray arrayWithObject:descriptior]]] retain];
+        [descriptior release];
+        [self addImagesInScrollViewFromPreviousSavedState];
         for (DragbleThumb* thumb in allThumbs) {
             [thumb setIsDraggingEnabled:YES];
         }
@@ -162,7 +194,9 @@
     else {
         for (DragbleThumb* thumb in allThumbs) {
             [thumb setIsDraggingEnabled:NO];
+            thumb.workingImage.imageIndex = [NSNumber numberWithInt:thumb.thumbIndex];
         }
+        [APP_DELEGATE saveContext];
         [sender setTitle:@"Re-arrange" forState:UIControlStateNormal];
         [self.addPhotoButton setEnabled:YES];
         [_scrollView setScrollEnabled:YES];
@@ -227,6 +261,8 @@
         [view.imageThumb setImage:[dict objectForKey:@"UIImageThumbImage"]];
         [_scrollView addSubview:view];
         [allThumbs addObject:view];
+        [tileFrame addObject:[NSValue valueWithCGRect:view.frame]];
+
         
         WorkingImage* lastThumb = [self addNewImageAtPath:filePath andIndex:lastIndex];
         [allImages addObject:lastThumb];
@@ -261,7 +297,7 @@
     
     touchStartLocation = point;
     heldStartPosition = thumb.frame.origin;
-    heldFrameIndex = thumb.thumbIndex;//[allThumbs indexOfObject:thumb];
+    heldFrameIndex = [allThumbs indexOfObject:thumb];
     
     [self.scrollView bringSubviewToFront:thumb];
     [thumb appearDraggable];
@@ -299,7 +335,7 @@
                 movingTile.frame = [(NSValue*)tileFrame[i] CGRectValue];
                 movingTile.thumbIndex = i;
                 allThumbs[i] = movingTile;
-                //NSLog(@"prev - %d (%d, heldFrameIndex=%d)",i, frameIndex,heldFrameIndex);
+                NSLog(@"prev - %d (%d, heldFrameIndex=%d)",i, frameIndex,heldFrameIndex);
             }
         }
         else if (heldFrameIndex < frameIndex) {
@@ -308,7 +344,7 @@
                 movingTile.frame = [(NSValue*)tileFrame[i] CGRectValue];
                 movingTile.thumbIndex = i;
                 allThumbs[i] = movingTile;
-                //NSLog(@"next - %d (%d, heldFrameIndex=%d)",i, frameIndex, heldFrameIndex);
+                NSLog(@"next - %d (%d, heldFrameIndex=%d)",i, frameIndex, heldFrameIndex);
             }
         }
         heldFrameIndex = frameIndex;

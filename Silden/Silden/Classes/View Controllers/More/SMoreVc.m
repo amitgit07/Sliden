@@ -25,7 +25,6 @@
         [[self tabBarItem] setFinishedSelectedImage:[UIImage imageNamed:@"more_icon_selected.png"] withFinishedUnselectedImage:[UIImage imageNamed:@"more_icon.png"]];
         
         _options = [@[@"Edit Profile", @"Settings", @"Other Apps", @"Share", @"Rate and Review App", @"Log out"] retain];
-        [APP_DELEGATE setNavigationBarBackground:YES];
     }
     return self;
 }
@@ -36,7 +35,9 @@
     [self.navigationController setNavigationBarHidden:NO];
     // Do any additional setup after loading the view from its nib.
 }
-
+- (void)viewWillAppear:(BOOL)animated {
+    [APP_DELEGATE setNavigationBarBackground:YES];
+}
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];

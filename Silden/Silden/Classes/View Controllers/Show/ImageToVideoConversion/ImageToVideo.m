@@ -404,13 +404,20 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
 }
 
 - (void)updateProgress {
-    [APP_DELEGATE setLockScreenProgress:_assetExport.progress];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [APP_DELEGATE setLockScreenProgress:_assetExport.progress];
+    });
 }
 /**
  After Images has been converted to video, add transitions and save to destination path
  */
 -(void)addTransitionsOnVideoAnsSaveToPath:(NSString*)destinationPath {
-    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [APP_DELEGATE showLockScreenStatusWithMessage:@"Creating Video!\nAdding transitions."];
+        [APP_DELEGATE setLockScreenProgress:0.0f];
+        _progressTracker=[NSTimer scheduledTimerWithTimeInterval:.1 target:self selector:@selector(updateProgress) userInfo:nil repeats:YES];
+    });
+
     AVMutableComposition* mixComposition = [AVMutableComposition composition];
     
     AVURLAsset* a_videoAsset = [[AVURLAsset alloc] initWithURL:[NSURL fileURLWithPath:TEMP_PATH] options:nil];
@@ -460,6 +467,12 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
     }
     AVMutableVideoCompositionLayerInstruction * firstlayerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:([v_tracks count]>0)?[v_tracks objectAtIndex:0]:nil];
 
+    NSLog(@"checking time %lld", mixComposition.duration.value/mixComposition.duration.timescale);
+    if (!CMTIME_IS_VALID(mixComposition.duration))
+    {
+        NSLog(@"Video time is invalid");
+    }
+    NSLog(@"Time checked");
     
     AVMutableVideoCompositionInstruction * instruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
     instruction.timeRange = CMTimeRangeMake(kCMTimeZero, mixComposition.duration);
@@ -574,8 +587,6 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
 {
     if([self tryRemovingOlderFileOnPath:path])
     {
-        _progressTracker=[NSTimer scheduledTimerWithTimeInterval:.1 target:self selector:@selector(updateProgress) userInfo:nil repeats:YES];
-
         [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionStarted object:nil];
         NSMutableArray *array = [NSMutableArray arrayWithArray:ImageArray];
         [self.allImages addObjectsFromArray:array];
@@ -644,9 +655,15 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
         /**
          Add other images in buffer
          */
+        float count = [array count];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [APP_DELEGATE showLockScreenStatusWithMessage:@"Creating Video!\nAdding photos."];
+        });
+
         for (UIImage *imgFrame in array)
         {
             if (adaptor.assetWriterInput.readyForMoreMediaData) {
+                NSLog(@"writing image %d",i);
                 CMTime frameTime = CMTimeMake(_timePerImage, 1);
                 CMTime lastTime = CMTimeMake(_timePerImage*i, 1);
                 CMTime presentTime = CMTimeAdd(lastTime, frameTime);
@@ -665,12 +682,14 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
                 }
                 
                 i++;
-                sleep(0.2); // Just to avoid some cases of error
+                [NSThread sleepForTimeInterval:0.1f]; // Just to avoid some cases of error
             } else {
                 NSLog(@"error %d",i);
                 i--;
             }
-            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [APP_DELEGATE setLockScreenProgress:i/count];
+            });
         }
         
         //Finish the session:

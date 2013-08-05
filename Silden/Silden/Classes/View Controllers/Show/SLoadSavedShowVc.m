@@ -35,7 +35,9 @@
     // Do any additional setup after loading the view from its nib.
     [_tableView setSeparatorColor:[UIColor colorWithPatternImage:Image(@"category_line.png")]];
 }
-
+- (void)viewWillAppear:(BOOL)animated {
+    [APP_DELEGATE setNavigationBarBackground:YES];
+}
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];

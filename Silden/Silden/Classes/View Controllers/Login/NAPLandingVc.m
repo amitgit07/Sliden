@@ -12,7 +12,7 @@
 #import <Parse/Parse.h>
 #import "SInviteFriendsVc.h"
 #import "SFollowUnfollowSelectionVc.h"
-#define DevelopmentMode 1
+#define DevelopmentMode 0
 
 @interface NAPLandingVc ()
 - (void)saveDataOnCloud:(NSDictionary*)dict forUser:(PFUser*)user;
@@ -33,6 +33,9 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
+}
+- (void)viewWillAppear:(BOOL)animated {
+    [APP_DELEGATE setNavigationBarBackground:NO];
 }
 - (void)viewDidAppear:(BOOL)animated {
     self.title = @"Home";

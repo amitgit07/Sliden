@@ -56,23 +56,40 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    NSArray* allImages = [self.workSpace.images allObjects];
-    NSSortDescriptor* desc = [[[NSSortDescriptor alloc] initWithKey:@"imageIndex" ascending:YES] autorelease];
-    allImages = [allImages sortedArrayUsingDescriptors:[NSArray arrayWithObject:desc]];
-    for (WorkingImage* image in allImages) {
-        [self resizeImageAtPath:image.imageUrl];
+    if ([_workSpace.isAnyChange integerValue]) {
+        NSArray* allImages = [self.workSpace.images allObjects];
+        NSSortDescriptor* desc = [[[NSSortDescriptor alloc] initWithKey:@"imageIndex" ascending:YES] autorelease];
+        allImages = [allImages sortedArrayUsingDescriptors:[NSArray arrayWithObject:desc]];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0l), ^{
+            for (WorkingImage* image in allImages) {
+                [self resizeImageAtPath:image.imageUrl];
+            }
+            [self makeVideo];
+        });
     }
-    [self makeVideo];
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
     WorkingImage* image = [_workSpace.images anyObject];
     NSString* thumbPath = [[image.imageUrl stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"thumb.png"];
     [self.videoThumbView setImage:[UIImage imageWithContentsOfFile:thumbPath]];
     self.title = @"Preview";
+    
+    if ([_workSpace.isAnyChange integerValue]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [APP_DELEGATE showActivity:YES];
+            [APP_DELEGATE showLockScreenStatusWithMessage:@"Creating Video!"];
+        });
+        
+    }
+
 }
 - (void)resizeImageAtPath:(NSString*)path {
     UIImage* image = [UIImage imageWithContentsOfFile:path];
+    if (CGSizeEqualToSize(image.size, CGSizeMake(Video_W, Video_H))) 
+        return;
+    
     float actualHeight = image.size.height;
     float actualWidth = image.size.width;
     float imgRatio = actualWidth/actualHeight;
@@ -169,14 +186,6 @@
 }
 
 - (void)makeVideo {
-    if (![_workSpace.isAnyChange integerValue])
-        return;
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [APP_DELEGATE showActivity:YES];
-        [APP_DELEGATE showLockScreenStatusWithMessage:@"Creating Video!"];
-    });
-
     [self getSelectedTransitons];
     int totalTransition = [selectedTransitions count];
     int counter=0;
@@ -267,8 +276,8 @@
     if (!cell) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier] autorelease];
         [cell setSelectionStyle:UITableViewCellSelectionStyleGray];
-        [cell.textLabel setFont:[UIFont systemFontOfSize:14]];
-        [cell.textLabel setTextColor:[UIColor darkGrayColor]];
+        [cell.textLabel setFont:[UIFont boldSystemFontOfSize:14]];
+        [cell.textLabel setTextColor:[UIColor grayColor]];
         [cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
     }
     cell.textLabel.text = [settingsOption objectAtIndex:indexPath.row];

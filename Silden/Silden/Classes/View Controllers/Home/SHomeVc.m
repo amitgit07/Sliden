@@ -36,7 +36,9 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
+- (void)viewWillAppear:(BOOL)animated {
+    [APP_DELEGATE setNavigationBarBackground:YES];
+}
 - (void)dealloc {
     [super dealloc];
 }
