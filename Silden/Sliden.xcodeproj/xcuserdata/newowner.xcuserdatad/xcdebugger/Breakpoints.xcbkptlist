@@ -8,11 +8,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Silden/Classes/App Delegate/SAppDelegate.m"
-         timestampString = "397296396.776667"
+         timestampString = "397367891.861973"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "253"
-         endingLineNumber = "253"
+         startingLineNumber = "255"
+         endingLineNumber = "255"
          landmarkName = "-showActivity:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -21,11 +21,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Silden/Classes/App Delegate/SAppDelegate.m"
-         timestampString = "397296396.776667"
+         timestampString = "397367891.861973"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "222"
-         endingLineNumber = "222"
+         startingLineNumber = "224"
+         endingLineNumber = "224"
          landmarkName = "-showLockScreenStatusWithMessage:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -43,7 +43,7 @@
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
-         shouldBeEnabled = "Yes"
+         shouldBeEnabled = "No"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Silden/Classes/View Controllers/Show/ImageToVideoConversion/ImageToVideo.m"
@@ -53,6 +53,32 @@
          startingLineNumber = "442"
          endingLineNumber = "442"
          landmarkName = "-addTransitionsOnVideoAnsSaveToPath:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "Silden/Classes/View Controllers/Show/SPhotoSelectorVc.m"
+         timestampString = "397390460.029225"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "211"
+         endingLineNumber = "211"
+         landmarkName = "-elcImagePickerController:didFinishPickingMediaWithInfo:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "Silden/Classes/View Controllers/Show/SPhotoSelectorVc.m"
+         timestampString = "397390460.029225"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "101"
+         endingLineNumber = "101"
+         landmarkName = "-addImagesInScrollViewFromPreviousSavedState"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>

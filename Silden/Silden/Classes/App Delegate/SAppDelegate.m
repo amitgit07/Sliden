@@ -16,7 +16,7 @@
 #import "SExplorerVc.h"
 #import "SHomeVc.h"
 #import "SMoreVc.h"
-
+#import <Crashlytics/Crashlytics.h>
 
 @implementation SAppDelegate {
     UILabel* _statusMsgLabel;
@@ -73,7 +73,7 @@
 
     _progressLabel = [[UILabel alloc] initWithFrame:CGRectMake(50, 80, 220, 20)];
     [_progressLabel setTextColor:[UIColor whiteColor]];
-    [_progressLabel setFont:[UIFont boldSystemFontOfSize:14]];
+    [_progressLabel setFont:[UIFont boldSystemFontOfSize:12]];
     [_progressLabel setNumberOfLines:1];
     [_progressLabel setTextAlignment:NSTextAlignmentCenter];
     [_progressLabel setBackgroundColor:[UIColor clearColor]];
@@ -132,6 +132,8 @@
 {
     [Parse setApplicationId:PARSE_APP_ID clientKey:PARSE_CLIENT_KEY];
     _launchedOtherApplication = NO;
+    
+    [Crashlytics startWithAPIKey:@"448ca20f309319feb66480225c0046491941db6f"];
     
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
     // Override point for customization after application launch.
@@ -223,28 +225,28 @@
 }
 - (void)setLockScreenProgress:(float)value {
     static Byte i = 0;
-    static NSString* str = nil;
-    switch ((i++)%4) {
-        case 0:
-            str=@"...   ";
-            break;
-        case 1:
-            str=@" ...  ";
-            break;
-        case 2:
-            str=@"  ... ";
-            break;
-        case 3:
-            str=@"   ...";
-            break;
-            
-        default:
-            break;
-    }
-    if (value < 1) {
+    if (value < 1.0f && value > 0.01f) {
         _progressLabel.text = [NSString stringWithFormat:@"%0.2f %@",value*100,@"%"];
     }
     else {
+        static NSString* str = nil;
+        switch ((i++)%4) {
+            case 0:
+                str=@"...   ";
+                break;
+            case 1:
+                str=@" ...  ";
+                break;
+            case 2:
+                str=@"  ... ";
+                break;
+            case 3:
+                str=@"   ...";
+                break;
+                
+            default:
+                break;
+        }
         _progressLabel.text = str;
     }
 }

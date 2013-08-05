@@ -64,6 +64,7 @@
 		200F888E174C810A00A096A1 /* movie_icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 200F888A174C810A00A096A1 /* movie_icon@2x.png */; };
 		201661F817AC3F87001BB5E6 /* category_line.png in Resources */ = {isa = PBXBuildFile; fileRef = 201661F617AC3F87001BB5E6 /* category_line.png */; };
 		201661F917AC3F87001BB5E6 /* category_line@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 201661F717AC3F87001BB5E6 /* category_line@2x.png */; };
+		2019153B17AF59F000AF4873 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2019153A17AF59F000AF4873 /* Crashlytics.framework */; };
 		201A5971176ABAF9000A8E73 /* review_video_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 201A596F176ABAF9000A8E73 /* review_video_bg.png */; };
 		201A5972176ABAF9000A8E73 /* review_video_bg@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 201A5970176ABAF9000A8E73 /* review_video_bg@2x.png */; };
 		203DC4D6179651E700E0F760 /* SPreviewVc.m in Sources */ = {isa = PBXBuildFile; fileRef = 203DC4D4179651E600E0F760 /* SPreviewVc.m */; };
@@ -307,6 +308,7 @@
 		200F888A174C810A00A096A1 /* movie_icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "movie_icon@2x.png"; sourceTree = "<group>"; };
 		201661F617AC3F87001BB5E6 /* category_line.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_line.png; sourceTree = "<group>"; };
 		201661F717AC3F87001BB5E6 /* category_line@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "category_line@2x.png"; sourceTree = "<group>"; };
+		2019153A17AF59F000AF4873 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		201A596F176ABAF9000A8E73 /* review_video_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = review_video_bg.png; sourceTree = "<group>"; };
 		201A5970176ABAF9000A8E73 /* review_video_bg@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "review_video_bg@2x.png"; sourceTree = "<group>"; };
 		203DC4D3179651E600E0F760 /* SPreviewVc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPreviewVc.h; sourceTree = "<group>"; };
@@ -573,6 +575,7 @@
 				20D5E09C172CC4A4008B5F73 /* Parse.framework in Frameworks */,
 				20D5E0B0172CC5A9008B5F73 /* FacebookSDK.framework in Frameworks */,
 				20436F601796EC280078C1EA /* libAviarySDK.a in Frameworks */,
+				2019153B17AF59F000AF4873 /* Crashlytics.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -901,6 +904,7 @@
 		20D5E03A172CB8FE008B5F73 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2019153A17AF59F000AF4873 /* Crashlytics.framework */,
 				200CBD49179A1CA100C68B92 /* AVFoundation.framework */,
 				200CBD47179A1C9500C68B92 /* CoreVideo.framework */,
 				200CBD45179A1C8900C68B92 /* CoreAudio.framework */,
@@ -1125,6 +1129,7 @@
 				20D5E034172CB8FE008B5F73 /* Sources */,
 				20D5E035172CB8FE008B5F73 /* Frameworks */,
 				20D5E036172CB8FE008B5F73 /* Resources */,
+				2019153917AF59B400AF4873 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1331,6 +1336,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		2019153917AF59B400AF4873 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Crashlytics.framework/run 448ca20f309319feb66480225c0046491941db6f";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		20D5E034172CB8FE008B5F73 /* Sources */ = {

@@ -574,6 +574,8 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
 {
     if([self tryRemovingOlderFileOnPath:path])
     {
+        _progressTracker=[NSTimer scheduledTimerWithTimeInterval:.1 target:self selector:@selector(updateProgress) userInfo:nil repeats:YES];
+
         [[NSNotificationCenter defaultCenter] postNotificationName:kNotificationVideoConversionStarted object:nil];
         NSMutableArray *array = [NSMutableArray arrayWithArray:ImageArray];
         [self.allImages addObjectsFromArray:array];
@@ -663,7 +665,7 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
                 }
                 
                 i++;
-                sleep(0.1); // Just to avoid some cases of error
+                sleep(0.2); // Just to avoid some cases of error
             } else {
                 NSLog(@"error %d",i);
                 i--;
@@ -673,7 +675,6 @@ NSString * const kNotificationVideoConversionFinished = @"VideoConversionComplet
         
         //Finish the session:
         [writerInput markAsFinished];
-        _progressTracker=[NSTimer scheduledTimerWithTimeInterval:.1 target:self selector:@selector(updateProgress) userInfo:nil repeats:YES];
         [videoWriter finishWritingWithCompletionHandler:^{
             NSLog(@"Movie created successfully");
             [self addTransitionsOnVideoAnsSaveToPath:path];

@@ -172,8 +172,10 @@
     if (![_workSpace.isAnyChange integerValue])
         return;
     
-    [APP_DELEGATE showActivity:YES];
-    [APP_DELEGATE showLockScreenStatusWithMessage:@"Creating Video!"];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [APP_DELEGATE showActivity:YES];
+        [APP_DELEGATE showLockScreenStatusWithMessage:@"Creating Video!"];
+    });
 
     [self getSelectedTransitons];
     int totalTransition = [selectedTransitions count];
