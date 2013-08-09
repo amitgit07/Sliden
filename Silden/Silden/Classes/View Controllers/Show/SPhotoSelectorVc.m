@@ -47,13 +47,12 @@
     NSSortDescriptor* descriptior = [[NSSortDescriptor alloc] initWithKey:@"imageIndex" ascending:YES];
     allImages = [[NSMutableArray arrayWithArray:[images sortedArrayUsingDescriptors:[NSArray arrayWithObject:descriptior]]] retain];
     [descriptior release];
-    [self addImagesInScrollViewFromPreviousSavedState];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     self.title = @"Import Photos";
-
+    [self addImagesInScrollViewFromPreviousSavedState];
 }
 - (void)didReceiveMemoryWarning
 {

@@ -215,6 +215,10 @@
             [_userInfo saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
                 [APP_DELEGATE showActivity:NO];
                 if (!error) {
+                    PFObject* newObjec = [PFObject objectWithClassName:@"followTableList"];
+                    [newObjec setObject:_userInfo forKey:@"user_id"];
+                    [newObjec saveInBackground];
+
                     PFObject* fbIds = [PFObject objectWithClassName:@"fbUserOnSilden"];
                     [fbIds setObject:[_userInfo objectForKey:@"id"] forKey:@"fbId"];
                     [fbIds saveInBackground];
@@ -227,9 +231,11 @@
                                         SFollowUnfollowSelectionVc* vc = [[[SFollowUnfollowSelectionVc alloc] initWithNibName:@"SFollowUnfollowSelectionVc" bundle:nil] autorelease];
                                         [[APP_DELEGATE tabBarController] presentViewController:vc animated:YES completion:nil];
                                     }];
-                } else {
+                }
+                if (error) {
                     NSString *errorString = [[error userInfo] objectForKey:@"error"];
-                    [SCI showAlertWithMsg:errorString];
+                    [SCI showAlertWithMsg:[SCI readableTextFromError:errorString]];
+                    return;
                 }
             }];
         }
@@ -245,6 +251,10 @@
             [_userInfo signUpInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
                 [APP_DELEGATE showActivity:NO];
                 if (!error) {
+                    PFObject* newObjec = [PFObject objectWithClassName:@"followTableList"];
+                    [newObjec setObject:_userInfo forKey:@"user_id"];
+                    [newObjec saveInBackground];
+
                     [UIView transitionFromView:self.navigationController.view
                                         toView:[[APP_DELEGATE tabBarController] view]
                                       duration:0.35f
@@ -253,9 +263,10 @@
                                         [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE tabBarController]];
                                     }];
 //                    [self.navigationController popToRootViewControllerAnimated:YES];
-                } else {
+                }
+                else {
                     NSString *errorString = [[error userInfo] objectForKey:@"error"];
-                    [SCI showAlertWithMsg:errorString];
+                    [SCI showAlertWithMsg:[SCI readableTextFromError:errorString]];
                     _userInfo = nil;
                 }
             }];

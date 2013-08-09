@@ -15,6 +15,7 @@
 
 @implementation SFollowUnfollowSelectionVc
 
+
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -30,24 +31,50 @@
     // Do any additional setup after loading the view from its nib.
     [_sildenUsersTableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [_sildenUsersTableView setBackgroundColor:[UIColor clearColor]];
-    _friendsIdCollection = [[NSMutableString alloc] initWithString:([[PFUser currentUser] valueForKey:kKeyFollowingUsers])?[[PFUser currentUser] valueForKey:kKeyFollowingUsers]:@""];
-
     [_sildenUserButton setEnabled:NO];
     [_facebookUserButton setEnabled:YES];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    PFQuery *query = [PFUser query];
+    [super viewWillAppear:animated];
+    _sildenUsers = [[NSMutableArray alloc] initWithCapacity:0];
+    _followingFriends = [[NSMutableArray alloc] initWithCapacity:0];
+
+    
+    PFQuery* q = [PFUser query];
+    
+//    NSArray* followers = [DBS followers];
+//    NSArray *oFollowers = [followers valueForKey:@"objectId"];
+    NSArray* following = [DBS following];
+    NSArray *oFollowing = [following valueForKey:@"objectId"];
+//    NSOrderedSet *orderedSet1 = [NSOrderedSet orderedSetWithArray:oFollowers];
+    NSOrderedSet *orderedSet2 = [NSOrderedSet orderedSetWithArray:oFollowing];
+    NSMutableArray* allKnownUsers = [[NSMutableArray alloc] init];
+//    [allKnownUsers addObjectsFromArray:[[orderedSet1 set] allObjects]];
+    [allKnownUsers addObjectsFromArray:[[orderedSet2 set] allObjects]];
+    [allKnownUsers addObject:[[PFUser currentUser] valueForKey:@"objectId"]];
+    [q whereKey:@"objectId" notContainedIn:allKnownUsers];
+    q.limit = 100;
     [APP_DELEGATE showActivity:YES];
-    [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
+    [q findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
+        if (error) {
+            NSString *errorString = [[error userInfo] objectForKey:@"error"];
+            [SCI showAlertWithMsg:[SCI readableTextFromError:errorString]];
+            return;
+        }
         if (objects) {
-            [APP_DELEGATE showActivity:NO];
-            NSPredicate* predicate = [NSPredicate predicateWithFormat:@"self.user_id != %@",[[PFUser currentUser] valueForKey:kKeyUserId]];
-            
-            _sildenUsers = [[objects filteredArrayUsingPredicate:predicate] retain];
-            [_sildenUsersTableView reloadData];
+            [_sildenUsers setArray:objects];
+            [_followingFriends setArray:[DBS following]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [_sildenUsersTableView reloadData];
+                [APP_DELEGATE showActivity:NO];
+            });
         }
     }];
+}
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [DBS updateFollowingListWithArray:_followingFriends];
 }
 - (void)didReceiveMemoryWarning
 {
@@ -66,9 +93,6 @@
 #define SkipButtonTag 200
 - (IBAction)skipOrDoneButtonTap:(UIButton *)sender {
     if (sender.tag == DoneButtonTag) {
-        [[PFUser currentUser] setValue:_friendsIdCollection forKey:kKeyFollowingUsers];
-        [[PFUser currentUser] saveInBackground];
-        
         if (facebookFriendsView && [facebookFriendsView.selectedFriends count]) {
             [[SharedUtility sharedInstance] scheduleFbPostOnFriendWithIds:[facebookFriendsView.selectedFriends allObjects]];
         }
@@ -117,43 +141,47 @@
     }];
 }
 
+- (PFUser*)friendObjectInArrayForUser:(PFUser*)usr inArray:(NSArray*)array{
+    NSArray* allUserFolloweByCU = array;//[[PFUser currentUser] objectForKey:@"following_users"];
+    if (allUserFolloweByCU && [allUserFolloweByCU count]) {
+//        [allUserFolloweByCU makeObjectsPerformSelector:@selector(fetchIfNeeded)];
+        NSPredicate* predicate = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
+            PFUser* user = (PFUser*)evaluatedObject;
+            if ([[user valueForKey:@"user_id"] isEqualToString:[usr valueForKey:@"user_id"]]) {
+                return YES;
+            }
+            return NO;
+        }];
+        NSArray* result = [allUserFolloweByCU filteredArrayUsingPredicate:predicate];
+        return [result lastObject];
+    }
+    return nil;
+}
 #pragma mark - UITableView protocol
 - (void)friendListCustomCell:(FriendListCustomCell*)cell didTapFollowButton:(UIButton*)sender {
     switch (cell.followStatus) {
         case FollowStatusFollowing:
-        {
+        {//unfollow done remove objects
             PFUser* user = [_sildenUsers objectAtIndex:sender.tag];
-            [_followingFriends removeObject:user];
-            NSRange range = [_friendsIdCollection rangeOfString:[NSString stringWithFormat:@"%@,",[user valueForKey:kKeyUserId]]];
-            [_friendsIdCollection deleteCharactersInRange:range];
-            NSString* followers = [user valueForKey:kKeyFollowers];
-            if (followers) {
-                NSRange range = [followers rangeOfString:[NSString stringWithFormat:@"%@,",[[PFUser currentUser] valueForKey:kKeyUserId]]];
-                if (range.location != NSNotFound) {
-                    followers = [followers stringByReplacingCharactersInRange:range withString:@""];
-                    [user setValue:followers forKey:kKeyFollowers];
-                    [user saveInBackground];
-                }
-            }
+            NSMutableArray* allUserFolloweByCU = _followingFriends;
+            user = [self friendObjectInArrayForUser:user inArray:allUserFolloweByCU];
+            [allUserFolloweByCU removeObject:user];
+            [DBS removeFollower:[PFUser currentUser] fromUser:user];
         }break;
         case FollowStatusNotFollowing:
-        {
+        {//follow a user
             PFUser* user = [_sildenUsers objectAtIndex:sender.tag];
-            [_followingFriends addObject:user];
-            [_friendsIdCollection appendFormat:@"%@,",[user valueForKey:kKeyUserId]];
-            NSString* followers = [user valueForKey:kKeyFollowers];
-            if (followers) {
-                NSRange range = [followers rangeOfString:[NSString stringWithFormat:@"%@,",[[PFUser currentUser] valueForKey:kKeyUserId]]];
-                if (range.location != NSNotFound) {
-                    followers = [followers stringByAppendingString:[NSString stringWithFormat:@"%@,",[[PFUser currentUser] valueForKey:kKeyUserId]]];
-                    [user setValue:followers forKey:kKeyFollowers];
-                    [user saveInBackground];
-                }
+            NSMutableArray* allUserFolloweByCU = _followingFriends;
+            if (allUserFolloweByCU) {
+                [allUserFolloweByCU addObject:user];
             }
+            [DBS addFollower:[PFUser currentUser] inUser:user];
         }break;
         default:
             break;
     }
+
+
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return [_sildenUsers count];
@@ -172,9 +200,9 @@
     }
     PFUser* user = [_sildenUsers objectAtIndex:indexPath.row];
     [cell.button setTag:indexPath.row];
-    
-    NSRange range = [_friendsIdCollection rangeOfString:[NSString stringWithFormat:@"%@,",[user valueForKey:kKeyUserId]]];
-    if (range.location != NSNotFound) {
+    NSMutableArray* allUserFolloweByCU = _followingFriends;
+
+    if ([allUserFolloweByCU containsObject:[self friendObjectInArrayForUser:user inArray:allUserFolloweByCU]]) {
         [cell setFollowStatus:FollowStatusFollowing];
     }
     else {

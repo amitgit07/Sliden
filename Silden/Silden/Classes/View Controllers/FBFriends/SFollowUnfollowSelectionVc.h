@@ -11,15 +11,13 @@
 #import "InviteFacebookFriend.h"
 
 @interface SFollowUnfollowSelectionVc : SGrayViewController <UITableViewDataSource, UITabBarDelegate, FriendListCustomCellDelegate> {
-    NSArray* _sildenUsers;
+    NSMutableArray* _sildenUsers;
     NSMutableArray* _followingFriends;
-    NSMutableString* _friendsIdCollection;
     InviteFacebookFriend* facebookFriendsView;
 }
 @property (retain, nonatomic) IBOutlet UITableView *sildenUsersTableView;
 @property (retain, nonatomic) IBOutlet UIButton *sildenUserButton;
 @property (retain, nonatomic) IBOutlet UIButton *facebookUserButton;
-
 - (IBAction)skipOrDoneButtonTap:(UIButton *)sender;
 - (IBAction)sildenUserButtonTap:(id)sender;
 - (IBAction)inviteFbFriendButtonTap:(id)sender;

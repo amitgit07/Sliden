@@ -181,6 +181,11 @@
         PFFile* songFile = [song objectForKey:@"music_file"];
         [APP_DELEGATE showActivity:YES];
         [songFile getDataInBackgroundWithBlock:^(NSData *data, NSError *error) {
+            if (error) {
+                NSString *errorString = [[error userInfo] objectForKey:@"error"];
+                [SCI showAlertWithMsg:[SCI readableTextFromError:errorString]];
+                return;
+            }
             [data writeToFile:filePath atomically:YES];
             _selectedSongIndex = sender.tag;
             NSArray* visibleCells = [_tableView visibleCells];
@@ -221,6 +226,11 @@
         [APP_DELEGATE showActivity:YES];
         [APP_DELEGATE showLockScreenStatusWithMessage:@"Downloading music file."];
         [songFile getDataInBackgroundWithBlock:^(NSData *data, NSError *error) {
+            if (error) {
+                NSString *errorString = [[error userInfo] objectForKey:@"error"];
+                [SCI showAlertWithMsg:[SCI readableTextFromError:errorString]];
+                return;
+            }
             [data writeToFile:filePath atomically:YES];
             if (audioPlayer) {
                 [audioPlayer stop];

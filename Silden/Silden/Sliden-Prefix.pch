@@ -23,7 +23,7 @@
     #import "SUILable.h"
     #import <CoreData/CoreData.h>
     #import "Reachability.h"
-
+    #import "SDBSync.h"
 #endif
 
 #define  RGBA(r , g, b, a) [UIColor colorWithRed:r/255.0f green:g/255.0f blue:b/255.0f alpha:a]
@@ -50,3 +50,5 @@
 #define Video_H 480.0f
 #define Video_Thumb_W 600.0f
 #define Video_Thumb_H 350.0f
+
+#define DevelopmentMode 0

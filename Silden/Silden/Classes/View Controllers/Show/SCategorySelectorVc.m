@@ -38,6 +38,12 @@
     [_tableView setSeparatorColor:[UIColor colorWithPatternImage:Image(@"category_line.png")]];
     PFQuery* musicCat = [PFQuery queryWithClassName:@"MusicCat"];
     [musicCat findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
+        [APP_DELEGATE showActivity:NO];
+        if (error) {
+            NSString *errorString = [[error userInfo] objectForKey:@"error"];
+            [SCI showAlertWithMsg:[SCI readableTextFromError:errorString]];
+            return;
+        }
         _allSongsInfo =[objects retain];
         for (PFObject* category in objects) {
             if (![_categories containsObject:[category objectForKey:@"cat_name"]]) {
@@ -45,7 +51,6 @@
             }
         }
         [_tableView reloadData];
-        [APP_DELEGATE showActivity:NO];
     }];
 //    [self saveNewCategoryWithName:@"SmallFiles"];
 }
@@ -114,7 +119,11 @@
             NSLog(@"Done saving file for %@",trackName);
         }
         else {
-            NSLog(@"Error saving file for %@",error);
+            if (error) {
+                NSString *errorString = [[error userInfo] objectForKey:@"error"];
+                [SCI showAlertWithMsg:[SCI readableTextFromError:errorString]];
+                return;
+            }
         }
     }];
     [newSong setValue:trackName forKey:@"track_name"];
@@ -124,7 +133,11 @@
             NSLog(@"Done saving metadata for %@",trackName);
         }
         else {
-            NSLog(@"Error saving metadata for %@",error);
+            if (error) {
+                NSString *errorString = [[error userInfo] objectForKey:@"error"];
+                [SCI showAlertWithMsg:[SCI readableTextFromError:errorString]];
+                return;
+            }
         }
     }];
 }

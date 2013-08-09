@@ -31,4 +31,6 @@ typedef enum {
 - (NSArray*)getFbFriendsIds;
 - (UIButton*)getACheckBoxButtonOnLocation:(CGPoint)origin;
 - (void)scheduleFbPostOnFriendWithIds:(NSArray*)array;
+- (NSString*)readableTextFromError:(NSString*)errString;
+- (UIImage*)maskImage:(UIImage *)image withMask:(UIImage *)maskImage;
 @end

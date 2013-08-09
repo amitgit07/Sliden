@@ -22,7 +22,7 @@
 #define validObject(o) (o)?o:[NSNull null]
 
 #define Image(o) [UIImage imageNamed:o]
-#define StreachImage(o, l, t) [Image(@"blueBtn37.png") stretchableImageWithLeftCapWidth:l topCapHeight:t]
+#define StreachImage(o, l, t) [Image(o) stretchableImageWithLeftCapWidth:l topCapHeight:t]
 #define FractionIn255(o) (o/255.0f)
 
 #endif

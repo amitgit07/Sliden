@@ -80,6 +80,7 @@ static NSMutableDictionary *allActiveRequestURLAndObjects;
             if (err)
                 NSLog(@"%s:%@",__FUNCTION__,err);
         }
+        self.defaultImage = nil;
     }
     return self;
 }
@@ -251,11 +252,19 @@ static NSMutableDictionary *allActiveRequestURLAndObjects;
     }
     else {
         [activity performSelectorOnMainThread:@selector(startAnimating) withObject:nil waitUntilDone:NO];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self setImage:self.defaultImage];
+        });
         if (![allActiveRequsetUrl containsObject:imageUrlStr]) {
             [allActiveRequsetUrl addObject:imageUrlStr];
             [allActiveRequestURLAndObjects setObject:[NSMutableArray arrayWithObject:self] forKey:imageUrlStr];
             PFFile *profilePic = [user objectForKey:kKeyProfilePic];
             [profilePic getDataInBackgroundWithBlock:^(NSData *data, NSError *error) {
+                if (error) {
+                    NSString *errorString = [[error userInfo] objectForKey:@"error"];
+                    [SCI showAlertWithMsg:[SCI readableTextFromError:errorString]];
+                    return;
+                }
                 if ([data length] > 50) {
                     NSFileManager* fm = [NSFileManager defaultManager];
                     if ([[NSFileManager defaultManager] fileExistsAtPath:localPath])

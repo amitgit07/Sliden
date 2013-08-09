@@ -55,6 +55,11 @@
     [APP_DELEGATE showActivity:YES];
     [PFUser requestPasswordResetForEmailInBackground:_emailTextField.text block:^(BOOL succeeded, NSError *error) {
         [APP_DELEGATE showActivity:NO];
+        if (error) {
+            NSString *errorString = [[error userInfo] objectForKey:@"error"];
+            [SCI showAlertWithMsg:[SCI readableTextFromError:errorString]];
+            return;
+        }
         if (succeeded) {
             [SCI showAlertWithMsg:@"An email has been sent to your account."];
             [self.navigationController popViewControllerAnimated:YES];

@@ -12,7 +12,6 @@
 #import <Parse/Parse.h>
 #import "SInviteFriendsVc.h"
 #import "SFollowUnfollowSelectionVc.h"
-#define DevelopmentMode 0
 
 @interface NAPLandingVc ()
 - (void)saveDataOnCloud:(NSDictionary*)dict forUser:(PFUser*)user;
@@ -89,6 +88,11 @@
     [APP_DELEGATE setLaunchedOtherApplication:YES];
     [PFFacebookUtils logInWithPermissions:permissionsArray block:^(PFUser *user, NSError *error) {
         [APP_DELEGATE showActivity:NO];
+        if (error) {
+            NSString *errorString = [[error userInfo] objectForKey:@"error"];
+            [SCI showAlertWithMsg:[SCI readableTextFromError:errorString]];
+            return;
+        }
         if (!user) {
             if (!error) {
                 DLog(@"Uh oh. The user cancelled the Facebook login.");
@@ -106,6 +110,11 @@
                     NSDictionary *userData = (NSDictionary *)result; // The result is a dictionary
                     [self saveDataOnCloud:userData forUser:user];
                     DLog(@" %@", userData);
+                }
+                if (error) {
+                    NSString *errorString = [[error userInfo] objectForKey:@"error"];
+                    [SCI showAlertWithMsg:[SCI readableTextFromError:errorString]];
+                    return;
                 }
             }];
         } else {
@@ -184,6 +193,11 @@
     [user signUpInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
         if (succeeded && !error) {
             DLog(@"Registered user %d",i);
+        }
+        if (error) {
+            NSString *errorString = [[error userInfo] objectForKey:@"error"];
+            [SCI showAlertWithMsg:[SCI readableTextFromError:errorString]];
+            return;
         }
     }];
 }
