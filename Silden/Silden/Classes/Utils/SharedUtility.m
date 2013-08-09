@@ -130,4 +130,75 @@ static SharedUtility* instance;
 //    }
     [[SharedUtility sharedInstance] showDevelopmentAlert];
 }
+//Error: Error Domain=NSURLErrorDomain Code=-1004 "Could not connect to the server." UserInfo=0xb351010 {NSErrorFailingURLStringKey=https://api.parse.com/2/user_login, NSErrorFailingURLKey=https://api.parse.com/2/user_login, NSLocalizedDescription=Could not connect to the server., NSUnderlyingError=0xb225fa0 "Could not connect to the server."} (Code: 100, Version: 1.2.7)
+- (NSString*)readableTextFromError:(NSString*)errString {
+    if(errString.length > 50){
+        NSRange sRange = [errString rangeOfString:@"NSLocalizedDescription="];
+        NSString* result = errString;
+        if (sRange.location != NSNotFound) {
+            result = [errString substringFromIndex:sRange.location+[@"NSLocalizedDescription=" length]];
+        }
+        else {
+            return result;
+        }
+        NSRange eRange = [result rangeOfString:@".,"];
+        if (eRange.location != NSNotFound) {
+            result = [result substringToIndex:eRange.location+1];
+        }
+        return result;
+    }
+    else return errString;
+}
+#define SIZE 300
+- (UIImage*)resizeToSquareImage:(UIImage*)image {
+    if(image.size.width == image.size.height) return image;
+
+    float actualHeight = image.size.height;
+    float actualWidth = image.size.width;
+    float imgRatio = actualWidth/actualHeight;
+    float maxRatio = 1.0f;
+    CGSize videoSize = CGSizeMake(SIZE, SIZE);
+    float x=0, y=0;
+    
+    if(imgRatio!=maxRatio){
+        if(imgRatio < maxRatio){
+            imgRatio = SIZE / actualWidth;
+            actualHeight = imgRatio * actualHeight;
+            actualWidth = SIZE;
+            x = 0;
+            y = (SIZE-actualHeight)/2.0f;
+        }
+        else{
+            imgRatio = SIZE / actualHeight;
+            actualWidth = imgRatio * actualWidth;
+            actualHeight = SIZE;
+            y = 0;
+            x = (SIZE-actualWidth)/2.0f;
+        }
+    }
+    else {
+        actualWidth = SIZE;
+        actualHeight = SIZE;
+    }
+    CGRect rect = CGRectMake(x, y, actualWidth, actualHeight);
+    UIGraphicsBeginImageContext(videoSize);
+    [image drawInRect:rect];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+- (UIImage*)maskImage:(UIImage *)image withMask:(UIImage *)maskImage
+{
+    image = [self resizeToSquareImage:image];
+    CGImageRef imgRef = [image CGImage];
+    CGImageRef maskRef = [maskImage CGImage];
+    CGImageRef actualMask = CGImageMaskCreate(CGImageGetWidth(maskRef),
+                                              CGImageGetHeight(maskRef),
+                                              CGImageGetBitsPerComponent(maskRef),
+                                              CGImageGetBitsPerPixel(maskRef),
+                                              CGImageGetBytesPerRow(maskRef),
+                                              CGImageGetDataProvider(maskRef), NULL, false);
+    CGImageRef masked = CGImageCreateWithMask(imgRef, actualMask);
+    return [UIImage imageWithCGImage:masked];
+}
 @end

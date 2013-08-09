@@ -7,8 +7,17 @@
 //
 
 #import <UIKit/UIKit.h>
-
-@interface SHomeVc : UIViewController
-- (IBAction)logoutButtonTap:(id)sender;
+#import "UIThumbView.h"
+@interface SHomeVc : SGrayViewController <UIImageViewTapDelegate>
+@property (retain, nonatomic) IBOutlet UIImageView *profilePicThumbView;
+@property (retain, nonatomic) IBOutlet UILabel *numberOfFollowersLabel;
+@property (retain, nonatomic) IBOutlet UILabel *numberOfFollowingLabel;
+@property (retain, nonatomic) IBOutlet UITableView *tableView;
+@property (retain, nonatomic) IBOutlet UIButton *followerButton;
+@property (retain, nonatomic) IBOutlet UIButton *followingButton;
+@property (retain, nonatomic) IBOutlet UIActivityIndicatorView *followingActivity;
+@property (retain, nonatomic) IBOutlet UIActivityIndicatorView *followersActivity;
+- (IBAction)followersButtonTap:(UIButton *)sender;
+- (IBAction)followingButtonTaped:(UIButton *)sender;
 
 @end

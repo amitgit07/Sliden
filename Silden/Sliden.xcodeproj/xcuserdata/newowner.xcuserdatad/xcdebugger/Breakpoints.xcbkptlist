@@ -7,13 +7,39 @@
          shouldBeEnabled = "No"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "Silden/Classes/App Delegate/SAppDelegate.m"
-         timestampString = "397394080.891151"
+         filePath = "Silden/Classes/View Controllers/Home/SHomeVc.m"
+         timestampString = "397682987.739484"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "227"
-         endingLineNumber = "227"
-         landmarkName = "-setLockScreenProgress:"
+         startingLineNumber = "79"
+         endingLineNumber = "79"
+         landmarkName = "-followersButtonTap:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "Silden/Classes/View Controllers/FBFriends/SFollowUnfollowSelectionVc.m"
+         timestampString = "397670555.493422"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "162"
+         endingLineNumber = "162"
+         landmarkName = "-friendListCustomCell:didTapFollowButton:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "Silden/Classes/View Controllers/Profile/SProfileVc.m"
+         timestampString = "397688315.074115"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "269"
+         endingLineNumber = "269"
+         landmarkName = "-syncFollowings"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>

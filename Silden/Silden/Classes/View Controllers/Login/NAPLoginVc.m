@@ -50,6 +50,11 @@
     };
     // Start Monitoring
     [reachability startNotifier];
+#if DevelopmentMode
+    
+    _emailTextField.text = @"amit2@gmail.com";
+    _passwordTextField.text = @"amit1234";
+#endif
 }
 - (void)dealloc {
     [_emailTextField release];
@@ -86,6 +91,7 @@
     NSString* error = [self checkForValidInput];
     if (error) {
         [SCI showAlertWithMsg:[error description]];
+        return;
     }
     if (![SCI isValidEmail:_emailTextField.text]) {
         [SCI showAlertWithMsg:@"Enter valid email!"];
@@ -95,6 +101,8 @@
     [PFUser logInWithUsernameInBackground:self.emailTextField.text password:self.passwordTextField.text block:^(PFUser *user, NSError *error) {
         [APP_DELEGATE showActivity:NO];
         if (user) {
+            [DBS syncFollowers];
+            [DBS syncFollowings];
             [UIView transitionFromView:self.navigationController.view
                                 toView:[[APP_DELEGATE tabBarController] view]
                               duration:0.35f
@@ -102,14 +110,11 @@
                             completion:^(BOOL finished) {
                                 [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE tabBarController]];
                             }];
-        } else {
-            if ([error code]==-1009) {
-                 [SCI showAlertWithMsg:@"The Internet connection appears to be offline."];
-            }
-            else {
-                NSString* errorString = [[error userInfo] objectForKey:@"error"];
-                [SCI showAlertWithMsg:errorString];
-            }
+        }
+        if (error) {
+            NSString *errorString = [[error userInfo] objectForKey:@"error"];
+            [SCI showAlertWithMsg:[SCI readableTextFromError:errorString]];
+            return;
         }
     }];
 }
