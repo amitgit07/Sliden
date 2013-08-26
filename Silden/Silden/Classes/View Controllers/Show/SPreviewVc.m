@@ -224,7 +224,42 @@
 }
 
 - (IBAction)uploadButtonTap:(UIButton *)sender {
-    [SCI showDevelopmentAlert];
+    WorkingImage* anyImages = [_workSpace.images anyObject];
+    NSString* videoPath = [[anyImages.imageUrl stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"vido.mov"];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:videoPath]) {
+        NSData* data = [NSData dataWithContentsOfFile:videoPath];
+        if (data.length > 10485750) {
+            [SCI showAlertWithMsg:@"File size of more than 10 Mb are not supported."];
+            return;
+        }
+        PFFile* thisShow = [PFFile fileWithName:_workSpace.title data:data];
+        [APP_DELEGATE showActivity:YES];
+        [APP_DELEGATE showLockScreenStatusWithMessage:@"Uploading Show."];
+        [thisShow saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+            if (error) {
+                [APP_DELEGATE showActivity:NO];
+                [SCI showAlertWithMsg:[SCI readableTextFromError:[[error userInfo] objectForKey:@"error"]]];
+                return ;
+            }
+            PFObject* object = [PFObject objectWithClassName:@"shows"];
+            [object setObject:[PFUser currentUser] forKey:@"creator"];
+            [object setObject:thisShow forKey:@"video"];
+            [object setObject:_workSpace.title forKey:@"title"];
+            [object setObject:_workSpace.videoDescription forKey:@"description"];
+            [APP_DELEGATE showActivity:YES];
+            [APP_DELEGATE showLockScreenStatusWithMessage:@"Uploading Show."];
+            [object saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+                [APP_DELEGATE showActivity:NO];
+                if (error) {
+                    [APP_DELEGATE showActivity:NO];
+                    [SCI showAlertWithMsg:[SCI readableTextFromError:[[error userInfo] objectForKey:@"error"]]];
+                    return ;
+                }
+            }];
+        } progressBlock:^(int percentDone) {
+            [APP_DELEGATE setLockScreenProgress:percentDone/100.0f];
+        }];
+    }
 }
 
 - (IBAction)settingsButtonTap:(UIButton *)sender {

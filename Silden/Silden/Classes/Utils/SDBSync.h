@@ -14,7 +14,6 @@ extern NSString* const kFollowersSynced;
 extern NSString* const kFollowingSynced;
 
 @interface SDBSync : NSObject {
-    
 }
 @property(nonatomic, retain) NSMutableArray* followers;
 @property(nonatomic, retain) NSMutableArray* following;

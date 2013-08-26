@@ -199,6 +199,9 @@ static SharedUtility* instance;
                                               CGImageGetBytesPerRow(maskRef),
                                               CGImageGetDataProvider(maskRef), NULL, false);
     CGImageRef masked = CGImageCreateWithMask(imgRef, actualMask);
-    return [UIImage imageWithCGImage:masked];
+    CGImageRelease(actualMask);
+    UIImage* image1 = [UIImage imageWithCGImage:masked];
+    CGImageRelease(masked);
+    return image1;
 }
 @end

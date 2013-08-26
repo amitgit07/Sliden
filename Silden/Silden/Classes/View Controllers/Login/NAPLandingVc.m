@@ -39,21 +39,29 @@
 - (void)viewDidAppear:(BOOL)animated {
     self.title = @"Home";
 #if DevelopmentMode
+    if ([[PFFacebookUtils session] isOpen] || [[PFUser currentUser] sessionToken]) {
+        [DBS syncFollowers];
+        [DBS syncFollowings];
         [UIView transitionFromView:self.navigationController.view
                             toView:[[APP_DELEGATE tabBarController] view]
                           duration:0.35f
                            options:UIViewAnimationOptionTransitionFlipFromLeft
                         completion:^(BOOL finished) {
                             [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE tabBarController]];
+//                            [APP_DELEGATE showActivity:YES];
                         }];
+    }
 #else
-    if ([[PFFacebookUtils session] isOpen]) {
+    if ([[PFFacebookUtils session] isOpen] || [[PFUser currentUser] sessionToken]) {
+        [DBS syncFollowers];
+        [DBS syncFollowings];
         [UIView transitionFromView:self.navigationController.view
                             toView:[[APP_DELEGATE tabBarController] view]
                           duration:0.35f
                            options:UIViewAnimationOptionTransitionFlipFromLeft
                         completion:^(BOOL finished) {
                             [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE tabBarController]];
+                            [APP_DELEGATE showActivity:YES];
                         }];
     }
 #endif
@@ -118,12 +126,15 @@
                 }
             }];
         } else {
+            [DBS syncFollowers];
+            [DBS syncFollowings];
             [UIView transitionFromView:self.navigationController.view
                                 toView:[[APP_DELEGATE tabBarController] view]
                               duration:0.35f
                                options:UIViewAnimationOptionTransitionFlipFromLeft
                             completion:^(BOOL finished) {
                                 [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE tabBarController]];
+                                [APP_DELEGATE showActivity:YES];
                             }];
 
         }

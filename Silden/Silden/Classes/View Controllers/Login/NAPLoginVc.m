@@ -109,6 +109,7 @@
                                options:UIViewAnimationOptionTransitionFlipFromLeft
                             completion:^(BOOL finished) {
                                 [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE tabBarController]];
+                                [APP_DELEGATE showActivity:YES];
                             }];
         }
         if (error) {

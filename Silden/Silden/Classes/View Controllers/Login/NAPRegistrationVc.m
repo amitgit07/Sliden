@@ -222,6 +222,8 @@
                     PFObject* fbIds = [PFObject objectWithClassName:@"fbUserOnSilden"];
                     [fbIds setObject:[_userInfo objectForKey:@"id"] forKey:@"fbId"];
                     [fbIds saveInBackground];
+                    [DBS syncFollowers];
+                    [DBS syncFollowings];
                     [UIView transitionFromView:self.navigationController.view
                                         toView:[[APP_DELEGATE tabBarController] view]
                                       duration:0.35f
@@ -254,7 +256,8 @@
                     PFObject* newObjec = [PFObject objectWithClassName:@"followTableList"];
                     [newObjec setObject:_userInfo forKey:@"user_id"];
                     [newObjec saveInBackground];
-
+                    [DBS syncFollowers];
+                    [DBS syncFollowings];
                     [UIView transitionFromView:self.navigationController.view
                                         toView:[[APP_DELEGATE tabBarController] view]
                                       duration:0.35f

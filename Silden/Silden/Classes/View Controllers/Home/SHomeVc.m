@@ -36,13 +36,12 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
-    [APP_DELEGATE showActivity:YES];
     [self setProfilePic];
     [_followersActivity startAnimating];
     [_followingActivity startAnimating];
     [_tableView setSeparatorColor:[UIColor clearColor]];
-    _following = [[NSMutableArray alloc] initWithCapacity:0];
-    _followers = [[NSMutableArray alloc] initWithCapacity:0];
+    _following = [[[NSMutableArray alloc] initWithCapacity:0] autorelease];
+    _followers = [[[NSMutableArray alloc] initWithCapacity:0] autorelease];
 }
 
 - (void)didReceiveMemoryWarning
@@ -53,6 +52,7 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [APP_DELEGATE setNavigationBarBackground:YES];
+    hideActivityCount = 0;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(followersUpdated) name:kFollowersSynced object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(followingUpdated) name:kFollowingSynced object:nil];
     _following = [DBS following];
@@ -159,6 +159,7 @@
     int index = [clikableImage.uniqueIdentifire intValue];
     PFUser *user = [_usersToDisplay objectAtIndex:index];
     UITabBarController* tbC = [APP_DELEGATE tabBarController];
+    [SProfileVc emptyUserStack];
     UINavigationController* nvc = [[tbC viewControllers] objectAtIndex:3];
     [nvc popToRootViewControllerAnimated:NO];
     SProfileVc* profileVc = (SProfileVc*)[[nvc viewControllers] objectAtIndex:0];
@@ -209,17 +210,24 @@
     }
 }
 - (void)followersUpdated {
-    [APP_DELEGATE showActivity:NO];
+    [self checkForHideScree];
     [_followersActivity stopAnimating];
     [_followers setArray:[DBS followers]];
     _numberOfFollowersLabel.text = [NSString stringWithFormat:@"%d",_followers.count];
     [_tableView reloadData];
 }
 - (void)followingUpdated {
-    [APP_DELEGATE showActivity:NO];
+    [self checkForHideScree];
     [_followingActivity stopAnimating];
     [_following setArray:[DBS following]];
     _numberOfFollowingLabel.text = [NSString stringWithFormat:@"%d",_following.count];
     [_tableView reloadData];
+}
+- (void)checkForHideScree {
+    hideActivityCount+=1;
+    if (hideActivityCount > 1) {
+        [APP_DELEGATE showActivity:NO];
+        hideActivityCount = 0;
+    }
 }
 @end

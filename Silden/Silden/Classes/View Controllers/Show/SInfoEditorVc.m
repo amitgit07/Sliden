@@ -30,7 +30,13 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
+    UIButton* help = [UIButton buttonWithType:UIButtonTypeCustom];
+    [help setBackgroundImage:Image(@"help_button.png") forState:UIControlStateNormal];
+    [help.titleLabel setFont:[UIFont boldSystemFontOfSize:12]];
+    [help setTitle:@"Help" forState:UIControlStateNormal];
+    [help setFrame:CGRectMake(0, 0, 60, 30)];
+    UIBarButtonItem* rightButton = [[UIBarButtonItem alloc] initWithCustomView:help];
+    [self.navigationItem setRightBarButtonItem:rightButton animated:YES];
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];

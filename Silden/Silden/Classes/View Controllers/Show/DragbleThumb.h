@@ -27,6 +27,7 @@
 @property(nonatomic, assign) BOOL isDraggingEnabled;
 @property(nonatomic, assign) id<DragbleThumbDelegate> delegate;
 @property(nonatomic, assign) WorkingImage* workingImage;
+- (void)setImageFromPath:(NSString*)path;
 - (void)appearDraggable;
 - (void)appearNormal;
 - (void)startWiggling;

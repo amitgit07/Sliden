@@ -251,16 +251,19 @@
     }
 }
 - (void)showActivity:(BOOL)show {
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         [_screenLock setHidden:!show];
         [_statusMsgLabel setHidden:!show];
         [_progressLabel setHidden:!show];
         if (show) {
+            NSLog(@"showing");
             [self.window bringSubviewToFront:_screenLock];
             [_imgView startAnimating];
             [_progressLabel setFrame:CGRectMake(_progressLabel.frame.origin.x, _imgView.frame.origin.y-20, _progressLabel.frame.size.width, _progressLabel.frame.size.height)];
         }
         else {
+            NSLog(@"hiding");
             [_imgView stopAnimating];
             [_statusMsgLabel setText:@""];
             [_progressLabel setText:@""];

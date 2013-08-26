@@ -43,14 +43,10 @@
     
     PFQuery* q = [PFUser query];
     
-//    NSArray* followers = [DBS followers];
-//    NSArray *oFollowers = [followers valueForKey:@"objectId"];
     NSArray* following = [DBS following];
     NSArray *oFollowing = [following valueForKey:@"objectId"];
-//    NSOrderedSet *orderedSet1 = [NSOrderedSet orderedSetWithArray:oFollowers];
     NSOrderedSet *orderedSet2 = [NSOrderedSet orderedSetWithArray:oFollowing];
     NSMutableArray* allKnownUsers = [[NSMutableArray alloc] init];
-//    [allKnownUsers addObjectsFromArray:[[orderedSet1 set] allObjects]];
     [allKnownUsers addObjectsFromArray:[[orderedSet2 set] allObjects]];
     [allKnownUsers addObject:[[PFUser currentUser] valueForKey:@"objectId"]];
     [q whereKey:@"objectId" notContainedIn:allKnownUsers];
@@ -144,7 +140,6 @@
 - (PFUser*)friendObjectInArrayForUser:(PFUser*)usr inArray:(NSArray*)array{
     NSArray* allUserFolloweByCU = array;//[[PFUser currentUser] objectForKey:@"following_users"];
     if (allUserFolloweByCU && [allUserFolloweByCU count]) {
-//        [allUserFolloweByCU makeObjectsPerformSelector:@selector(fetchIfNeeded)];
         NSPredicate* predicate = [NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
             PFUser* user = (PFUser*)evaluatedObject;
             if ([[user valueForKey:@"user_id"] isEqualToString:[usr valueForKey:@"user_id"]]) {

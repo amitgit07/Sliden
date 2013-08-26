@@ -25,10 +25,10 @@
     NSMutableArray* allImages;
     int currentX;
     int currentY;
+    BOOL anyPositionChange;
 }
 @synthesize workSpace=_workSpace;
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
@@ -36,9 +36,7 @@
     }
     return self;
 }
-
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
     [self.addPhotoButton setBackgroundImage:[Image(@"blueBtn37.png") stretchableImageWithLeftCapWidth:15 topCapHeight:0] forState:UIControlStateNormal];
     [self.rearrangeButton setBackgroundImage:StreachImage(@"blueBtn37.png", 15, 0) forState:UIControlStateNormal];    
@@ -47,15 +45,18 @@
     NSSortDescriptor* descriptior = [[NSSortDescriptor alloc] initWithKey:@"imageIndex" ascending:YES];
     allImages = [[NSMutableArray arrayWithArray:[images sortedArrayUsingDescriptors:[NSArray arrayWithObject:descriptior]]] retain];
     [descriptior release];
+    double delayInSeconds = 0.15f;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        [self addImagesInScrollViewFromPreviousSavedState];
+    });
+    anyPositionChange = YES;
 }
-
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     self.title = @"Import Photos";
-    [self addImagesInScrollViewFromPreviousSavedState];
 }
-- (void)didReceiveMemoryWarning
-{
+- (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
@@ -63,6 +64,9 @@
     [_rearrangeButton release];
     [_addPhotoButton release];
     [_scrollView release];
+    cRelease(allImages);
+    cRelease(allThumbs);
+    cRelease(tileFrame);
     [super dealloc];
 }
 #pragma mark - Private methods
@@ -120,36 +124,45 @@
     WorkingImage* newObj = [result lastObject];
     newObj.imageIndex = image.imageIndex;
 }
+- (void)removeUnwanted:(NSArray*)views {
+    [views makeObjectsPerformSelector:@selector(removeFromSuperview)];
+}
 - (void)addImagesInScrollViewFromPreviousSavedState {
+    if (!anyPositionChange) {
+        return;
+    }
+    anyPositionChange = NO;
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     //NSLog(@"%s",__FUNCTION__);
 	currentX = 8;
     currentY = 8;
     if (!tileFrame) {
         tileFrame = [[NSMutableArray alloc] init];
     }
-    [[_scrollView subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    NSArray* temp = [_scrollView subviews];
+    [self performSelector:@selector(removeUnwanted:) withObject:temp afterDelay:0.5f];
     [allThumbs removeAllObjects];
     [tileFrame removeAllObjects];
-//    dispatch_async(dispatch_get_main_queue(), ^{
-        for(WorkingImage *image in allImages) {
-            CGRect frame = CGRectMake(currentX, currentY, 70, 70);
-            DragbleThumb* view = [[DragbleThumb alloc] initWithFrame:frame];
-            view.workingImage = [self databaseObjectForImage:image];
-            [tileFrame addObject:[NSValue valueWithCGRect:frame]];
-            [view.imageThumb setImage:[UIImage imageWithContentsOfFile:image.imageUrl]];
-            [view setThumbIndex:[image.imageIndex integerValue]];
-            [view setDelegate:self];
-
+    for(WorkingImage *image in allImages) {
+        CGRect frame = CGRectMake(currentX, currentY, 70, 70);
+        DragbleThumb* view = [[[DragbleThumb alloc] initWithFrame:frame] autorelease];
+        view.workingImage = image;//[self databaseObjectForImage:image];
+        [tileFrame addObject:[NSValue valueWithCGRect:frame]];
+        [view setImageFromPath:image.imageUrl];
+        [view setThumbIndex:[image.imageIndex integerValue]];
+        [view setDelegate:self];
+        dispatch_async(dispatch_get_main_queue(), ^{
             [_scrollView addSubview:view];
-            [allThumbs addObject:view];
-            currentX += 78;
-            if (currentX > 300) {
-                currentX = 8;
-                currentY += 78;
-            }
+        });
+        [allThumbs addObject:view];
+        currentX += 78;
+        if (currentX > 300) {
+            currentX = 8;
+            currentY += 78;
         }
-        [_scrollView setContentSize:CGSizeMake(320, (currentX==8)?currentY:(currentY+78))];
-//    });
+    }
+    [_scrollView setContentSize:CGSizeMake(320, (currentX==8)?currentY:(currentY+78))];
+    [pool drain];
 }
 
 #pragma mark - Instance methods
@@ -167,13 +180,9 @@
         [SCI showAlertWithMsg:@"Please select two or more photos."];
     }
 }
-
 - (IBAction)homeButtonTap:(UIButton *)sender {
     [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE tabBarController]];
 }
-
-
-
 - (IBAction)rearrangeButtonTap:(UIButton *)sender {
     //NSLog(@"%s",__FUNCTION__);
     if ([sender.titleLabel.text isEqualToString:@"Re-arrange"]) {
@@ -182,10 +191,10 @@
         NSSortDescriptor* descriptior = [[NSSortDescriptor alloc] initWithKey:@"imageIndex" ascending:YES];
         allImages = [[NSMutableArray arrayWithArray:[images sortedArrayUsingDescriptors:[NSArray arrayWithObject:descriptior]]] retain];
         [descriptior release];
-        [self addImagesInScrollViewFromPreviousSavedState];
-        for (DragbleThumb* thumb in allThumbs) {
-            [thumb setIsDraggingEnabled:YES];
-        }
+            [self addImagesInScrollViewFromPreviousSavedState];
+            for (DragbleThumb* thumb in allThumbs) {
+                [thumb setIsDraggingEnabled:YES];
+            }
         [sender setTitle:@"Done" forState:UIControlStateNormal];
         [self.addPhotoButton setEnabled:NO];
         [_scrollView setScrollEnabled:NO];
@@ -228,8 +237,7 @@
     _workImage.inWorkSpace = [NSSet setWithObject:_workSpace];
     return _workImage;
 }
-- (void)elcImagePickerController:(ELCImagePickerController *)picker didFinishPickingMediaWithInfo:(NSArray *)info
-{
+- (void)elcImagePickerController:(ELCImagePickerController *)picker didFinishPickingMediaWithInfo:(NSArray *)info {
     if ([self respondsToSelector:@selector(dismissViewControllerAnimated:completion:)]){
         [self dismissViewControllerAnimated:YES completion:nil];
     } else {
@@ -279,8 +287,7 @@
     [APP_DELEGATE saveContext];
 }
 
-- (void)elcImagePickerControllerDidCancel:(ELCImagePickerController *)picker
-{
+- (void)elcImagePickerControllerDidCancel:(ELCImagePickerController *)picker {
     if ([self respondsToSelector:@selector(dismissViewControllerAnimated:completion:)]){
         [self dismissViewControllerAnimated:YES completion:nil];
     } else {
@@ -301,7 +308,7 @@
     [self.scrollView bringSubviewToFront:thumb];
     [thumb appearDraggable];
     //[self startTilesWiggling];
-    
+    anyPositionChange = YES;
     _workSpace.isAnyChange = [NSNumber numberWithInt:([_workSpace.isAnyChange integerValue] | WorkSpaceChangedInPhotosSelection)];
 }
 - (void)dragbleThumb:(DragbleThumb*)thumb didMovingToPosition:(CGPoint)point {
@@ -333,6 +340,7 @@
                 DragbleThumb *movingTile = allThumbs[i-1];
                 movingTile.frame = [(NSValue*)tileFrame[i] CGRectValue];
                 movingTile.thumbIndex = i;
+                movingTile.workingImage.imageIndex = [NSNumber numberWithInt:i];
                 allThumbs[i] = movingTile;
                 NSLog(@"prev - %d (%d, heldFrameIndex=%d)",i, frameIndex,heldFrameIndex);
             }
@@ -342,6 +350,7 @@
                 DragbleThumb *movingTile = allThumbs[i+1];
                 movingTile.frame = [(NSValue*)tileFrame[i] CGRectValue];
                 movingTile.thumbIndex = i;
+                movingTile.workingImage.imageIndex = [NSNumber numberWithInt:i];
                 allThumbs[i] = movingTile;
                 NSLog(@"next - %d (%d, heldFrameIndex=%d)",i, frameIndex, heldFrameIndex);
             }
@@ -349,6 +358,8 @@
         heldFrameIndex = frameIndex;
         allThumbs[heldFrameIndex] = heldTile;
         heldTile.thumbIndex = heldFrameIndex;
+        heldTile.workingImage.imageIndex = [NSNumber numberWithInt:heldFrameIndex];
+
         [UIView commitAnimations];
     }
 }
@@ -375,12 +386,12 @@
 
 - (void)dragbleThumb:(DragbleThumb*)thumb didEndOnPosition:(CGPoint)point {
     //NSLog(@"%s",__FUNCTION__);
-    if (heldTile) {
-        [heldTile appearNormal];
+    [heldTile appearNormal];
+    if (heldTile && heldFrameIndex < [tileFrame count]) {
         heldTile.frame = [(NSValue*)tileFrame[heldFrameIndex] CGRectValue];
         heldTile.thumbIndex = heldFrameIndex;
+        heldTile.workingImage.imageIndex = [NSNumber numberWithInt:heldFrameIndex];
         heldTile = nil;
-        //[self stopTilesWiggling];
     }
 }
 - (void)startTilesWiggling {
@@ -396,17 +407,17 @@
 
 
 - (void)stopTilesWiggling {
-    //NSLog(@"%s",__FUNCTION__);
-    [allImages removeAllObjects];
-    int index = 0;
-    for (DragbleThumb* thumb in allThumbs) {
-        [thumb stopWiggling];
-        WorkingImage* image = thumb.workingImage;
-        image.imageIndex = [NSNumber numberWithInt:index++];
-        [allImages addObject:thumb.workingImage];
-        thumb.layer.cornerRadius =0.0f;
-    }
-    [APP_DELEGATE saveContext];
+//    //NSLog(@"%s",__FUNCTION__);
+//    [allImages removeAllObjects];
+//    int index = 0;
+//    for (DragbleThumb* thumb in allThumbs) {
+//        [thumb stopWiggling];
+//        WorkingImage* image = thumb.workingImage;
+//        image.imageIndex = [NSNumber numberWithInt:index++];
+//        [allImages addObject:thumb.workingImage];
+//        thumb.layer.cornerRadius =0.0f;
+//    }
+//    [APP_DELEGATE saveContext];
 }
 - (void)didTapToEditDragbleThumb:(DragbleThumb*)thumb {
     //NSLog(@"%s",__FUNCTION__);
@@ -420,10 +431,9 @@
 }
 
 
-- (void) launchPhotoEditorWithImage:(UIImage *)editingResImage highResolutionImage:(UIImage *)highResImage
-{
+- (void) launchPhotoEditorWithImage:(UIImage *)editingResImage highResolutionImage:(UIImage *)highResImage {
     // Initialize the photo editor and set its delegate
-    AFPhotoEditorController * photoEditor = [[AFPhotoEditorController alloc] initWithImage:editingResImage];
+    AFPhotoEditorController * photoEditor = [[[AFPhotoEditorController alloc] initWithImage:editingResImage] autorelease];
     [photoEditor setDelegate:self];
     
     // Customize the editor's apperance. The customization options really only need to be set once in this case since they are never changing, so we used dispatch once here.
@@ -436,8 +446,7 @@
 #pragma Photo Editor Delegate Methods
 
 // This is called when the user taps "Done" in the photo editor.
-- (void) photoEditor:(AFPhotoEditorController *)editor finishedWithImage:(UIImage *)image
-{
+- (void) photoEditor:(AFPhotoEditorController *)editor finishedWithImage:(UIImage *)image {
     [_beingEditedImage.imageThumb setImage:image];
     NSData * binaryImageData = UIImagePNGRepresentation(image);
     [binaryImageData writeToFile:_beingEditedImage.workingImage.imageUrl atomically:YES];
@@ -446,15 +455,13 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (void) photoEditorCanceled:(AFPhotoEditorController *)editor
-{
+- (void) photoEditorCanceled:(AFPhotoEditorController *)editor {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - Photo Editor Customization
 
-- (void) setPhotoEditorCustomizationOptions
-{
+- (void) setPhotoEditorCustomizationOptions {
     // Set Accent Color
     [AFPhotoEditorCustomization setOptionValue:[UIColor colorWithRed:(159.0f/255.0f) green:(105.0f/255.0f) blue:(201.0f/255.0f) alpha:1.0f] forKey:@"editor.accentColor"];
     

@@ -14,6 +14,7 @@
 @property (nonatomic, retain) PFUser*  currentUser;
 @property (nonatomic, retain) NSMutableArray* following;
 @property (nonatomic, retain) NSMutableArray* followers;
+@property (nonatomic, assign) Byte   hideLockCount;
 
 @property (retain, nonatomic) IBOutlet UITableView *tableView;
 @property (retain, nonatomic) IBOutlet UIButton *showsButton;
@@ -34,5 +35,6 @@
 - (IBAction)followersButtonTap:(UIButton *)sender;
 - (IBAction)followingButtonTap:(UIButton *)sender;
 
++ (void)emptyUserStack;
 - (void)displayProfileForUser:(PFUser*)user;
 @end

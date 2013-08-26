@@ -73,7 +73,7 @@
     [back setBackgroundImage:Image(@"back_button.png") forState:UIControlStateNormal];
     [back.titleLabel setFont:[UIFont boldSystemFontOfSize:12]];
     [back setTitle:@"Back" forState:UIControlStateNormal];
-    [back setFrame:CGRectMake(0, 0, 60, 30)];
+    [back setFrame:CGRectMake(0, 0, 50, 30)];
     UIBarButtonItem* leftButton = [[UIBarButtonItem alloc] initWithCustomView:back];
     [self.navigationItem setLeftBarButtonItem:leftButton animated:YES];
 }
@@ -189,7 +189,16 @@
 }
 #pragma mark - Private Methods
 - (void)backButtonTap:(id)sender {
+    [APP_DELEGATE setNavigationBarBackground:YES];
     [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE tabBarController]];
+    CGRect frame = [APP_DELEGATE tabBarController].view.frame;
+    frame.origin.x = -320;
+    [APP_DELEGATE tabBarController].view.frame = frame;
+    frame.origin.x = 0;
+    [UIView animateWithDuration:0.2f animations:^{
+        [APP_DELEGATE tabBarController].view.frame = frame;
+    } completion:^(BOOL finished) {
+    }];
 }
 - (WorkSpace*)createNewWorkSpace {
     NSError* error;

@@ -25,11 +25,21 @@
         [self addSubview:_imageThumb];
         backupFrame = frame;
         
-        UITapGestureRecognizer* tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapOnThumbToEdit)];
+        UITapGestureRecognizer* tap = [[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapOnThumbToEdit)] autorelease];
         [tap setNumberOfTapsRequired:1];
         [self addGestureRecognizer:tap];
     }
     return self;
+}
+- (void)setImageFromPath:(NSString*)path {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0l), ^{
+        // This is happening in the background thread.
+        UIImage *image = [UIImage imageWithContentsOfFile:path];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // This is happening on the main thread; all UI updates must happen here.
+            self.imageThumb.image = image;
+        });
+    });
 }
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     if (_isDraggingEnabled) {

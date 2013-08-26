@@ -26,7 +26,7 @@
         self.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"More" image:nil tag:0];
         [[self tabBarItem] setFinishedSelectedImage:[UIImage imageNamed:@"more_icon_selected.png"] withFinishedUnselectedImage:[UIImage imageNamed:@"more_icon.png"]];
         
-        _options = [@[@"Edit Profile", @"Settings", @"Random Users", @"Other Apps", @"Share", @"Rate and Review App", @"Log out"] retain];
+        _options = [@[@"Edit Profile", @"Settings", @"Other Apps", @"Share", @"Rate and Review App", @"Log out"] retain];//@"Random Users",
     }
     return self;
 }
@@ -72,7 +72,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     switch (indexPath.row) {
-        case 6:
+        case 5:
         {
             [PFUser logOut];
             NSHTTPCookieStorage* cookies = [NSHTTPCookieStorage sharedHTTPCookieStorage];
@@ -86,11 +86,11 @@
             [self.navigationController popToRootViewControllerAnimated:NO];
             [[APP_DELEGATE window] setRootViewController:[APP_DELEGATE landingNavigationCntrl]];
         }break;
-        case 2: {
-            SFollowUnfollowSelectionVc* vc = [[[SFollowUnfollowSelectionVc alloc] initWithNibName:@"SFollowUnfollowSelectionVc" bundle:nil] autorelease];
-            [self.navigationController presentModalViewController:vc
-                                                         animated:YES];
-        }break;
+//        case 2: {
+//            SFollowUnfollowSelectionVc* vc = [[[SFollowUnfollowSelectionVc alloc] initWithNibName:@"SFollowUnfollowSelectionVc" bundle:nil] autorelease];
+//            [self.navigationController presentModalViewController:vc
+//                                                         animated:YES];
+//        }break;
         default:
             [SCI showDevelopmentAlert];
             break;

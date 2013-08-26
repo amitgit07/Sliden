@@ -21,7 +21,11 @@
     NSMutableArray* _usersToDisplay;
 }
 static NSMutableArray* userStack;
-
++ (void)emptyUserStack {
+    if (userStack) {
+        [userStack removeAllObjects];
+    }
+}
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -31,6 +35,7 @@ static NSMutableArray* userStack;
         [[self tabBarItem] setFinishedSelectedImage:[UIImage imageNamed:@"profile_icon_selected.png"] withFinishedUnselectedImage:[UIImage imageNamed:@"profile_icon.png"]];
         if (!userStack) {
             userStack = [[NSMutableArray alloc] init];
+            _hideLockCount = 0;
         }
     }
     return self;
@@ -41,6 +46,7 @@ static NSMutableArray* userStack;
     [super viewDidLoad];
     _usersToDisplay = [[NSMutableArray alloc] initWithCapacity:0];
     // Do any additional setup after loading the view from its nib.
+    [_followButton setBackgroundImage:StreachImage(@"blueButton37_146.png", 70, 17) forState:UIControlStateNormal];
 }
 
 - (void)didReceiveMemoryWarning
@@ -53,21 +59,21 @@ static NSMutableArray* userStack;
     [APP_DELEGATE setNavigationBarBackground:NO];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(followersSynced) name:kFollowersSynced_SProfileVc object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(followingSynced) name:kFollowingSynced_SProfileVc object:nil];
-    [self.navigationItem setTitle:[_currentUser objectForKey:@"name"]];
-    UIImage *navBackgroundImage = [UIImage imageNamed:@"top_bar_without_txt.png"];
-    [self.navigationController.navigationBar setBackgroundImage:navBackgroundImage forBarMetrics:UIBarMetricsDefault];
-    NSString* userName = [_currentUser objectForKey:@"name"];
-    if (userName && [userStack containsObject:userName]) {
-        int index = [userStack indexOfObject:userName];
-        if (index >= 0) {
-            int count = [userStack count];
-            count -= (index+1);
-            for (int i = 0; i < count; i++) {
-                [userStack removeLastObject];
+    if (_currentUser) {
+        [self.navigationItem setTitle:[_currentUser objectForKey:@"name"]];
+        NSString* userName = [_currentUser objectForKey:@"name"];
+        if (userName && [userStack containsObject:userName]) {
+            int index = [userStack indexOfObject:userName];
+            if (index >= 0) {
+                int count = [userStack count];
+                count -= (index+1);
+                for (int i = 0; i < count; i++) {
+                    [userStack removeLastObject];
+                }
             }
         }
+        [self setProfilePic];
     }
-    [self setProfilePic];
 }
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
@@ -110,6 +116,14 @@ static NSMutableArray* userStack;
     [super viewDidUnload];
 }
 - (IBAction)followButtonTap:(UIButton *)sender {
+    NSArray* array = [NSArray arrayWithArray:[DBS following]];
+    NSPredicate* predicate = [NSPredicate predicateWithFormat:@"self.name=%@",[_currentUser objectForKey:@"name"]];
+    array = [[DBS following] filteredArrayUsingPredicate:predicate];
+    if (![array count] && _currentUser) {
+        [[DBS following] addObject:_currentUser];
+        array = [NSArray arrayWithArray:[DBS following]];
+        [DBS updateFollowingListWithArray:array];
+    }
 }
 
 - (IBAction)showsButtonTap:(UIButton *)sender {
@@ -122,7 +136,7 @@ static NSMutableArray* userStack;
     [self setAllButtonSelected:NO];
     _followersButton.selected = YES;
     //update _usersToDisplay and reload table
-    _usersToDisplay = _followers;
+    [_usersToDisplay setArray:_followers];
     [_tableView reloadData];
 }
 
@@ -130,7 +144,7 @@ static NSMutableArray* userStack;
     [self setAllButtonSelected:NO];
     _followingButton.selected = YES;
     //update _usersToDisplay and reload table
-    _usersToDisplay = _following;
+    [_usersToDisplay setArray:_following];
     [_tableView reloadData];
 }
 - (void)displayProfileForUser:(PFUser*)user {
@@ -142,7 +156,8 @@ static NSMutableArray* userStack;
     cRelease(_following);
     _following = [[NSMutableArray alloc] initWithCapacity:0];
     _followers = [[NSMutableArray alloc] initWithCapacity:0];
-        
+    _hideLockCount = 0;
+    [APP_DELEGATE showActivity:YES];
     [self syncFollowers];
     [self syncFollowings];
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -161,7 +176,7 @@ static NSMutableArray* userStack;
     _numberOfFollowersLabel.text = [NSString stringWithFormat:@"%d",_followers.count];
     [_followersActivity stopAnimating];
     if (_followersButton.selected) {
-        _usersToDisplay = _followers;
+        [_usersToDisplay setArray:_followers];
         [_tableView reloadData];
     }
 }
@@ -169,7 +184,7 @@ static NSMutableArray* userStack;
     _numberOfFollowingLabel.text = [NSString stringWithFormat:@"%d",_following.count];
     [_followingActivity stopAnimating];
     if (_followingButton.selected) {
-        _usersToDisplay = _following;
+        [_usersToDisplay setArray:_following];
         [_tableView reloadData];
     }
 }
@@ -235,6 +250,7 @@ static NSMutableArray* userStack;
             NSArray* followers = [followTableForCU objectForKey:@"followers"];
             if(followers && [followers count]) {
                 [self.followers removeAllObjects];
+                __block int count = [followers count];
                 for (PFUser* usr in followers) {
                     [usr fetchInBackgroundWithBlock:^(PFObject *object, NSError *error) {
                         if (error) {
@@ -243,15 +259,22 @@ static NSMutableArray* userStack;
                             return;
                         }
                         [self.followers addObject:object];
-                        [[NSNotificationCenter defaultCenter] postNotificationName:kFollowersSynced_SProfileVc object:nil];
+                        if (--count == 0) {
+                            [self checkForHideScree];
+                            [[NSNotificationCenter defaultCenter] postNotificationName:kFollowersSynced_SProfileVc object:nil];
+                        }
                     }];
                 }
             }
-            else
+            else {
+                [self checkForHideScree];
                 [[NSNotificationCenter defaultCenter] postNotificationName:kFollowersSynced_SProfileVc object:nil];
+            }
         }
-        else
+        else {
+            [self checkForHideScree];
             [[NSNotificationCenter defaultCenter] postNotificationName:kFollowersSynced_SProfileVc object:nil];
+        }
         
     }];
 }
@@ -268,6 +291,7 @@ static NSMutableArray* userStack;
             PFObject* followTableForCU = [objects lastObject];
             NSArray* following = [followTableForCU objectForKey:@"following"];
             [self.following removeAllObjects];
+            __block int count = [following count];
             if(following && [following count]) {
                 for (PFUser* usr in following) {
                     [usr fetchInBackgroundWithBlock:^(PFObject *object, NSError *error) {
@@ -277,15 +301,22 @@ static NSMutableArray* userStack;
                             return;
                         }
                         [self.following addObject:object];
-                        [[NSNotificationCenter defaultCenter] postNotificationName:kFollowingSynced_SProfileVc object:nil];
+                        if (--count == 0) {
+                            [self checkForHideScree];
+                            [[NSNotificationCenter defaultCenter] postNotificationName:kFollowingSynced_SProfileVc object:nil];
+                        }
                     }];
                 }
             }
-            else
+            else {
+                [self checkForHideScree];
                 [[NSNotificationCenter defaultCenter] postNotificationName:kFollowingSynced_SProfileVc object:nil];
+            }
         }
-        else
+        else {
+            [self checkForHideScree];
             [[NSNotificationCenter defaultCenter] postNotificationName:kFollowingSynced_SProfileVc object:nil];
+        }
     }];
 }
 
@@ -345,7 +376,7 @@ static NSMutableArray* userStack;
     NSLog(@"%@",userStack);
     if ([userStack containsObject:userName]) {
         int index = [userStack indexOfObject:userName];
-        if (index >= 0) {
+        if (index >= 0 && [[self.navigationController viewControllers] count] > index) {
             [self.navigationController popToViewController:[[self.navigationController viewControllers] objectAtIndex:index] animated:YES];
             int count = [userStack count];
             count -= (index+1);
@@ -362,5 +393,11 @@ static NSMutableArray* userStack;
         self.navigationItem.title = @"Back";
     }
 }
-
+- (void)checkForHideScree {
+    _hideLockCount+=1;
+    if (_hideLockCount > 1) {
+        [APP_DELEGATE showActivity:NO];
+        _hideLockCount = 0;
+    }
+}
 @end

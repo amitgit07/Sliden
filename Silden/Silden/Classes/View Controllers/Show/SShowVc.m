@@ -32,6 +32,7 @@
     // Do any additional setup after loading the view from its nib.
 }
 - (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
     [APP_DELEGATE setNavigationBarBackground:YES];
 }
 - (void)didReceiveMemoryWarning
@@ -43,10 +44,22 @@
 - (IBAction)createShowButtonTap:(UIButton *)sender {
     STransitonSelectorVc* newObj = [[[STransitonSelectorVc alloc] initWithNibName:@"STransitonSelectorVc" bundle:nil] autorelease];
     UINavigationController* nvc = [[[UINavigationController alloc] initWithRootViewController:newObj] autorelease];
-    [UIView transitionFromView:self.view toView:newObj.view duration:0.35f options:UIViewAnimationOptionTransitionFlipFromLeft completion:^(BOOL finished) {
-        [APP_DELEGATE setNavigationBarBackground:NO];
-        [[APP_DELEGATE window] setRootViewController:nvc];
+    [APP_DELEGATE setNavigationBarBackground:NO];
+    [[APP_DELEGATE window] setRootViewController:nvc];
+
+    
+    CGRect frame = nvc.view.frame;
+    frame.origin.x = 320;
+    nvc.view.frame = frame;
+    frame.origin.x = 0;
+    [UIView animateWithDuration:0.2f animations:^{
+        nvc.view.frame = frame;
+    } completion:^(BOOL finished) {
     }];
+
+//    [UIView transitionFromView:self.view toView:newObj.view duration:0.35f options:UIViewAnimationOptionTransitionFlipFromLeft completion:^(BOOL finished) {
+//        [APP_DELEGATE setNavigationBarBackground:NO];
+//    }];
 }
 
 - (IBAction)loadShowButtonTap:(UIButton *)sender {

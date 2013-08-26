@@ -8,7 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "UIThumbView.h"
-@interface SHomeVc : SGrayViewController <UIImageViewTapDelegate>
+@interface SHomeVc : SGrayViewController <UIImageViewTapDelegate> {
+    Byte hideActivityCount;
+}
 @property (retain, nonatomic) IBOutlet UIImageView *profilePicThumbView;
 @property (retain, nonatomic) IBOutlet UILabel *numberOfFollowersLabel;
 @property (retain, nonatomic) IBOutlet UILabel *numberOfFollowingLabel;
@@ -19,5 +21,4 @@
 @property (retain, nonatomic) IBOutlet UIActivityIndicatorView *followersActivity;
 - (IBAction)followersButtonTap:(UIButton *)sender;
 - (IBAction)followingButtonTaped:(UIButton *)sender;
-
 @end

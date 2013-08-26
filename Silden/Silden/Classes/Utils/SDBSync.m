@@ -121,7 +121,6 @@ static SDBSync* instance;
                             return;
                         }
                         [self.following addObject:object];
-                        [[NSNotificationCenter defaultCenter] postNotificationName:kFollowingSynced object:nil];
                         count++;
                         if (count>[following count]) {
                             [[NSNotificationCenter defaultCenter] postNotificationName:kFollowingSynced object:nil];
@@ -139,7 +138,9 @@ static SDBSync* instance;
 - (void)removeFollower:(PFUser*)notFollowingNow fromUser:(PFUser*)nonInterestingUser {
     PFQuery *query = [PFQuery queryWithClassName:@"followTableList"];
     [query whereKey:@"user_id" equalTo:nonInterestingUser];
+    [APP_DELEGATE showActivity:YES];
     [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
+        [APP_DELEGATE showActivity:NO];
         if (error) {
             NSString *errorString = [[error userInfo] objectForKey:@"error"];
             [SCI showAlertWithMsg:[SCI readableTextFromError:errorString]];
@@ -166,7 +167,9 @@ static SDBSync* instance;
 - (void)addFollower:(PFUser*)newFollower inUser:(PFUser*)interestingUser {
     PFQuery *query = [PFQuery queryWithClassName:@"followTableList"];
     [query whereKey:@"user_id" equalTo:interestingUser];
+    [APP_DELEGATE showActivity:YES];
     [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
+        [APP_DELEGATE showActivity:NO];
         if (error) {
             NSString *errorString = [[error userInfo] objectForKey:@"error"];
             [SCI showAlertWithMsg:[SCI readableTextFromError:errorString]];
