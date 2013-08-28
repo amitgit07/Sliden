@@ -251,7 +251,9 @@
     }
 }
 - (void)showActivity:(BOOL)show {
-    
+//    if (DevelopmentMode) {
+//        return;
+//    }
     dispatch_async(dispatch_get_main_queue(), ^{
         [_screenLock setHidden:!show];
         [_statusMsgLabel setHidden:!show];

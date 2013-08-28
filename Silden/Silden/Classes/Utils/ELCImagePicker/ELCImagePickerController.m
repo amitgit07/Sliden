@@ -26,9 +26,19 @@ const NSString* UIImageThumbImage = @"UIImageThumbImage";
 - (void)selectedAssets:(NSArray *)assets
 {
 	NSMutableArray *returnArray = [[[NSMutableArray alloc] init] autorelease];
-	
+    
+    NSDictionary* dict = [_myDelegate imageFolderAndStartIndex];
+    int i = [[dict objectForKey:@"last index"] intValue];
+    NSString* baseFolder = [dict objectForKey:@"image base folder"];
+    [[NSFileManager defaultManager] createDirectoryAtPath:baseFolder withIntermediateDirectories:YES attributes:nil error:nil];
+    [APP_DELEGATE showActivity:YES];
+    [APP_DELEGATE showLockScreenStatusWithMessage:@"Processing image"];
+    float total = [assets count];
+    float count = 0;
 	for(ALAsset *asset in assets) {
-
+        count++;
+        [APP_DELEGATE showLockScreenStatusWithMessage:[NSString stringWithFormat:@"Processing image\n%0.2f",(count/total)*100]];
+        NSAutoreleasePool* pool= [[NSAutoreleasePool alloc] init];
 		NSMutableDictionary *workingDictionary = [[NSMutableDictionary alloc] init];
 		[workingDictionary setObject:[asset valueForProperty:ALAssetPropertyType] forKey:@"UIImagePickerControllerMediaType"];
         ALAssetRepresentation *assetRep = [asset defaultRepresentation];
@@ -37,13 +47,18 @@ const NSString* UIImageThumbImage = @"UIImageThumbImage";
         UIImage *img = [UIImage imageWithCGImage:imgRef
                                            scale:[UIScreen mainScreen].scale
                                      orientation:UIImageOrientationUp];
-        [workingDictionary setObject:img forKey:@"UIImagePickerControllerOriginalImage"];
+        NSString* filePath = [baseFolder stringByAppendingPathComponent:[NSString stringWithFormat:@"%d.png",i++]];
+        NSData * binaryImageData = UIImagePNGRepresentation(img);
+        [binaryImageData writeToFile:filePath atomically:YES];
+        
+        [workingDictionary setObject:filePath forKey:@"UIImagePickerControllerOriginalImage"];
 		[workingDictionary setObject:[[asset valueForProperty:ALAssetPropertyURLs] valueForKey:[[[asset valueForProperty:ALAssetPropertyURLs] allKeys] objectAtIndex:0]] forKey:@"UIImagePickerControllerReferenceURL"];
 		[workingDictionary setObject:[UIImage imageWithCGImage:asset.thumbnail] forKey:@"UIImageThumbImage"];
 		[returnArray addObject:workingDictionary];
 		
-		[workingDictionary release];	
-	}    
+		[workingDictionary release];
+        [pool drain];
+	}
 	if(_myDelegate != nil && [_myDelegate respondsToSelector:@selector(elcImagePickerController:didFinishPickingMediaWithInfo:)]) {
 		[_myDelegate performSelector:@selector(elcImagePickerController:didFinishPickingMediaWithInfo:) withObject:self withObject:[NSArray arrayWithArray:returnArray]];
 	} else {

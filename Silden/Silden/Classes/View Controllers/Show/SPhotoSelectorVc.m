@@ -16,7 +16,7 @@
 #import "AFPhotoEditorController.h"
 #import "AFPhotoEditorCustomization.h"
 
-
+typedef void (^ImageFromUrl) (UIImage* image, NSString* url);
 @interface SPhotoSelectorVc ()
 @end
 
@@ -39,8 +39,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self.addPhotoButton setBackgroundImage:[Image(@"blueBtn37.png") stretchableImageWithLeftCapWidth:15 topCapHeight:0] forState:UIControlStateNormal];
-    [self.rearrangeButton setBackgroundImage:StreachImage(@"blueBtn37.png", 15, 0) forState:UIControlStateNormal];    
-
+    [self.rearrangeButton setBackgroundImage:StreachImage(@"blueBtn37.png", 15, 0) forState:UIControlStateNormal];
+    
     NSArray* images = [self.workSpace.images allObjects];
     NSSortDescriptor* descriptior = [[NSSortDescriptor alloc] initWithKey:@"imageIndex" ascending:YES];
     allImages = [[NSMutableArray arrayWithArray:[images sortedArrayUsingDescriptors:[NSArray arrayWithObject:descriptior]]] retain];
@@ -146,9 +146,11 @@
     for(WorkingImage *image in allImages) {
         CGRect frame = CGRectMake(currentX, currentY, 70, 70);
         DragbleThumb* view = [[[DragbleThumb alloc] initWithFrame:frame] autorelease];
-        view.workingImage = image;//[self databaseObjectForImage:image];
+        view.workingImage = image;
         [tileFrame addObject:[NSValue valueWithCGRect:frame]];
-        [view setImageFromPath:image.imageUrl];
+        NSString* path = image.imageUrl;
+        path = [path stringByReplacingOccurrencesOfString:@".png" withString:@"_thumb.png"];
+        [view setImageFromPath:path];
         [view setThumbIndex:[image.imageIndex integerValue]];
         [view setDelegate:self];
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -164,7 +166,36 @@
     [_scrollView setContentSize:CGSizeMake(320, (currentX==8)?currentY:(currentY+78))];
     [pool drain];
 }
-
+-(void)findLargeImagefromUrl:(NSString*)mediaurl performBolock:(ImageFromUrl)performBlock
+{
+    
+    ALAssetsLibraryAssetForURLResultBlock resultblock = ^(ALAsset *myasset)
+    {
+        ALAssetRepresentation *rep = [myasset defaultRepresentation];
+        CGImageRef iref = [rep fullResolutionImage];
+        if (iref) {
+            UIImage* image = [UIImage imageWithCGImage:iref];
+            performBlock(image, mediaurl);
+        }
+    };
+    
+    //
+    ALAssetsLibraryAccessFailureBlock failureblock  = ^(NSError *myerror)
+    {
+        NSLog(@"booya, cant get image - %@",[myerror localizedDescription]);
+        performBlock(nil, mediaurl);
+        
+    };
+    
+    if(mediaurl && [mediaurl length])
+    {
+        NSURL *asseturl = [NSURL URLWithString:mediaurl];
+        ALAssetsLibrary* assetslibrary = [[[ALAssetsLibrary alloc] init] autorelease];
+        [assetslibrary assetForURL:asseturl
+                       resultBlock:resultblock
+                      failureBlock:failureblock];
+    }
+}
 #pragma mark - Instance methods
 - (IBAction)keepSlidenButtonTap:(UIButton *)sender {
     //NSLog(@"%s",__FUNCTION__);
@@ -191,10 +222,10 @@
         NSSortDescriptor* descriptior = [[NSSortDescriptor alloc] initWithKey:@"imageIndex" ascending:YES];
         allImages = [[NSMutableArray arrayWithArray:[images sortedArrayUsingDescriptors:[NSArray arrayWithObject:descriptior]]] retain];
         [descriptior release];
-            [self addImagesInScrollViewFromPreviousSavedState];
-            for (DragbleThumb* thumb in allThumbs) {
-                [thumb setIsDraggingEnabled:YES];
-            }
+        [self addImagesInScrollViewFromPreviousSavedState];
+        for (DragbleThumb* thumb in allThumbs) {
+            [thumb setIsDraggingEnabled:YES];
+        }
         [sender setTitle:@"Done" forState:UIControlStateNormal];
         [self.addPhotoButton setEnabled:NO];
         [_scrollView setScrollEnabled:NO];
@@ -237,6 +268,14 @@
     _workImage.inWorkSpace = [NSSet setWithObject:_workSpace];
     return _workImage;
 }
+- (NSDictionary*)imageFolderAndStartIndex {
+    NSString* workingFolder = CACHE_DIR;
+    int lastIndex = 0;
+    workingFolder = [workingFolder stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",_workSpace.dateCreated]];
+    lastIndex = [allImages count];
+    return [NSDictionary dictionaryWithObjectsAndKeys:workingFolder,@"image base folder",
+            [NSNumber numberWithInt:lastIndex],@"last index", nil];
+}
 - (void)elcImagePickerController:(ELCImagePickerController *)picker didFinishPickingMediaWithInfo:(NSArray *)info {
     if ([self respondsToSelector:@selector(dismissViewControllerAnimated:completion:)]){
         [self dismissViewControllerAnimated:YES completion:nil];
@@ -245,36 +284,36 @@
     }
 	
     int lastIndex = 0;
-    if ([allImages count]) {
-        WorkingImage* lastThumb = [allImages lastObject];
-        lastIndex = [lastThumb.imageIndex intValue]+1;
-    }
+    lastIndex = [allImages count];
     NSString* workingFolder = CACHE_DIR;
     workingFolder = [workingFolder stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",_workSpace.dateCreated]];
     NSString* filePath = nil;
     BOOL makeThumbToo = YES;
 	for(NSDictionary *dict in info) {
         _workSpace.isAnyChange = [NSNumber numberWithInt:([_workSpace.isAnyChange integerValue] | WorkSpaceChangedInPhotosSelection)];
-        UIImage *image = [dict objectForKey:UIImagePickerControllerOriginalImage];
-        filePath = [workingFolder stringByAppendingPathComponent:[NSString stringWithFormat:@"%d.png",lastIndex]];
+        filePath = [dict objectForKey:UIImagePickerControllerOriginalImage];//[workingFolder stringByAppendingPathComponent:[NSString stringWithFormat:@"%d.png",lastIndex]];
+        
+        UIImage* image = [dict objectForKey:UIImageThumbImage];//UIImagePickerControllerOriginalImage
+        NSString *thumbPath = [workingFolder stringByAppendingPathComponent:[NSString stringWithFormat:@"%d_thumb.png",lastIndex]];
         NSData * binaryImageData = UIImagePNGRepresentation(image);
-        [binaryImageData writeToFile:filePath atomically:YES];
+        [binaryImageData writeToFile:thumbPath atomically:YES];
         if (makeThumbToo) {
             [self createVideoThumbFromImage:filePath];
             makeThumbToo = NO;
         }
-
         DragbleThumb* view = [[DragbleThumb alloc] initWithFrame:CGRectMake(currentX, currentY, 70, 70)];
-        [view.imageThumb setImage:[dict objectForKey:@"UIImageThumbImage"]];
+        [view.imageThumb setImage:image];
         [_scrollView addSubview:view];
         [allThumbs addObject:view];
         [tileFrame addObject:[NSValue valueWithCGRect:view.frame]];
-
+        
         
         WorkingImage* lastThumb = [self addNewImageAtPath:filePath andIndex:lastIndex];
+        [lastThumb setAssetsUrl:[(NSURL*)[dict objectForKey:UIImagePickerControllerReferenceURL] absoluteString]];
         [allImages addObject:lastThumb];
         [view setThumbIndex:[lastThumb.imageIndex integerValue]];
         [view setDelegate:self];
+        [view setWorkingImage:lastThumb];
         
         currentX += 78;
         if (currentX > 300) {
@@ -284,6 +323,7 @@
         lastIndex++;
 	}
     [_scrollView setContentSize:CGSizeMake(320, (currentX==8)?currentY:(currentY+78))];
+    [APP_DELEGATE showActivity:NO];
     [APP_DELEGATE saveContext];
 }
 
@@ -296,7 +336,7 @@
     [APP_DELEGATE setNavigationBarBackground:NO];
 }
 
-#pragma mark - DragableView Delegate 
+#pragma mark - DragableView Delegate
 - (void)dragbleThumb:(DragbleThumb*)thumb didBeginFromPosition:(CGPoint)point {
     //NSLog(@"%s",__FUNCTION__);
     heldTile = thumb;
@@ -331,7 +371,7 @@
 - (void)moveUnheldTilesAwayFromPoint:(CGPoint)location {
     //NSLog(@"%s",__FUNCTION__);
     int frameIndex = [self indexOfClosestFrameToPoint:location];
-
+    
     if (frameIndex != heldFrameIndex) {
         [UIView beginAnimations:@"MoveTiles" context:nil];
         
@@ -359,7 +399,7 @@
         allThumbs[heldFrameIndex] = heldTile;
         heldTile.thumbIndex = heldFrameIndex;
         heldTile.workingImage.imageIndex = [NSNumber numberWithInt:heldFrameIndex];
-
+        
         [UIView commitAnimations];
     }
 }
@@ -407,17 +447,17 @@
 
 
 - (void)stopTilesWiggling {
-//    //NSLog(@"%s",__FUNCTION__);
-//    [allImages removeAllObjects];
-//    int index = 0;
-//    for (DragbleThumb* thumb in allThumbs) {
-//        [thumb stopWiggling];
-//        WorkingImage* image = thumb.workingImage;
-//        image.imageIndex = [NSNumber numberWithInt:index++];
-//        [allImages addObject:thumb.workingImage];
-//        thumb.layer.cornerRadius =0.0f;
-//    }
-//    [APP_DELEGATE saveContext];
+    //    //NSLog(@"%s",__FUNCTION__);
+    //    [allImages removeAllObjects];
+    //    int index = 0;
+    //    for (DragbleThumb* thumb in allThumbs) {
+    //        [thumb stopWiggling];
+    //        WorkingImage* image = thumb.workingImage;
+    //        image.imageIndex = [NSNumber numberWithInt:index++];
+    //        [allImages addObject:thumb.workingImage];
+    //        thumb.layer.cornerRadius =0.0f;
+    //    }
+    //    [APP_DELEGATE saveContext];
 }
 - (void)didTapToEditDragbleThumb:(DragbleThumb*)thumb {
     //NSLog(@"%s",__FUNCTION__);
@@ -447,12 +487,39 @@
 
 // This is called when the user taps "Done" in the photo editor.
 - (void) photoEditor:(AFPhotoEditorController *)editor finishedWithImage:(UIImage *)image {
-    [_beingEditedImage.imageThumb setImage:image];
+    [self dismissViewControllerAnimated:YES completion:nil];
     NSData * binaryImageData = UIImagePNGRepresentation(image);
     [binaryImageData writeToFile:_beingEditedImage.workingImage.imageUrl atomically:YES];
-
     
-    [self dismissViewControllerAnimated:YES completion:nil];
+    float actualHeight = image.size.height;
+    float actualWidth = image.size.width;
+    float requiredH = 150.0f;
+    float requiredW = 150.0f;
+    float rawRatio = actualWidth/actualHeight;
+    float ratioRequired = requiredW/requiredH;
+    CGSize videoSize = CGSizeMake(requiredW, requiredH);
+    float x=0, y=0;
+    
+    if (rawRatio >= ratioRequired) {
+        actualHeight = requiredH;
+        actualWidth *= actualHeight/image.size.height;
+    }
+    else {
+        actualWidth = requiredW;
+        actualHeight *= actualWidth/image.size.width;
+    }
+    
+    CGRect rect = CGRectMake(x, y, actualWidth, actualHeight);
+    UIGraphicsBeginImageContext(videoSize);
+    [image drawInRect:rect];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    binaryImageData = UIImagePNGRepresentation(newImage);
+    NSString* path = [_beingEditedImage.workingImage.imageUrl stringByReplacingOccurrencesOfString:@".png" withString:@"_thumb.png"];
+    [binaryImageData writeToFile:path atomically:YES];
+    
+    [_beingEditedImage.imageThumb setImage:newImage];
+    
 }
 
 - (void) photoEditorCanceled:(AFPhotoEditorController *)editor {

@@ -16,7 +16,7 @@ extern const NSString* UIImageThumbImage;
 
 - (void)elcImagePickerController:(ELCImagePickerController *)picker didFinishPickingMediaWithInfo:(NSArray *)info;
 - (void)elcImagePickerControllerDidCancel:(ELCImagePickerController *)picker;
-
+- (NSDictionary*)imageFolderAndStartIndex;
 @end
 
 @interface ELCImagePickerController : UINavigationController <ELCAssetSelectionDelegate>
